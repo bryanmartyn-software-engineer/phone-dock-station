@@ -34,7 +34,7 @@
             cursor: grabbing;
         }
 
-        /* minimal swipe hint — tiny, low contrast */
+        /* minimal swipe hint */
         .swipe-hint {
             text-align: center;
             font-size: 10px;
@@ -171,7 +171,7 @@
             text-align: center;
         }
 
-        /* ========== WEATHER SECTION – BLACK & FLAT ========== */
+        /* ========== WEATHER SECTION – ONLY CURRENT, NO FORECASTS ========== */
         .weather-header {
             display: flex;
             justify-content: space-between;
@@ -260,7 +260,6 @@
             display: flex;
             gap: 12px;
             justify-content: space-between;
-            margin-bottom: 28px;
             flex-wrap: wrap;
         }
 
@@ -282,47 +281,11 @@
             color: white;
         }
 
-        .forecast-label {
-            font-size: 12px;
-            color: #888;
-            margin: 18px 0 10px 4px;
-            letter-spacing: 0.5px;
-        }
-
-        .scroll-horiz {
-            display: flex;
-            gap: 12px;
-            overflow-x: auto;
-            padding: 4px 2px 12px;
-            scrollbar-width: thin;
-        }
-
-        .fc-item {
-            background: #0f0f0f;
-            text-align: center;
-            min-width: 68px;
-            padding: 12px 6px;
-            border-radius: 22px;
-            border: 1px solid #1e1e1e;
-        }
-
-        .fc-temp {
-            font-weight: 600;
-            font-size: 15px;
-            margin-top: 6px;
-        }
-
-        .small-precip {
-            font-size: 9px;
-            color: #aaa;
-            margin-top: 4px;
-        }
-
         .last-updated-txt {
             font-size: 9px;
             color: #333;
             text-align: center;
-            margin-top: 20px;
+            margin-top: 28px;
         }
 
         /* ========== ALARM SECTION ========== */
@@ -489,7 +452,7 @@
             background: #1a1a1a;
         }
 
-        /* ringing alarm — strong warning */
+        /* ringing alarm */
         .ringing .modal-card {
             animation: subtlePulse 0.9s infinite;
             background: #150000;
@@ -497,8 +460,8 @@
         }
 
         @keyframes subtlePulse {
-            0% { border-color: #8b2c2c; box-shadow: 0 0 0 rgba(200, 60, 60, 0.2);}
-            100% { border-color: #c04444; box-shadow: 0 0 12px rgba(200, 70, 70, 0.4);}
+            0% { border-color: #8b2c2c; }
+            100% { border-color: #c04444; }
         }
 
         .ringing-buttons {
@@ -547,7 +510,6 @@
             background: #333;
         }
 
-        /* no glass, no gradient, flat black */
         button, .icon-flat, .action-wide, .mini-btn {
             cursor: pointer;
             font-family: inherit;
@@ -577,7 +539,7 @@
         </div>
     </div>
 
-    <!-- PAGE 2: WEATHER -->
+    <!-- PAGE 2: WEATHER (CURRENT ONLY - NO HOURLY, NO 5-DAY) -->
     <div class="page weather-page">
         <div class="panel">
             <div class="weather-header">
@@ -598,10 +560,6 @@
                 <div class="stat-card">💨 wind<br><span class="stat-value" id="wind">-- km/h</span></div>
                 <div class="stat-card">🌡️ feels<br><span class="stat-value" id="feels-like">--°</span></div>
             </div>
-            <div class="forecast-label">next hours</div>
-            <div class="scroll-horiz" id="hourly-forecast">loading..</div>
-            <div class="forecast-label" style="margin-top: 12px;">5‑day</div>
-            <div class="scroll-horiz" id="daily-forecast">loading..</div>
             <div class="last-updated-txt" id="weather-last-updated"></div>
         </div>
     </div>
@@ -654,7 +612,7 @@
 <div id="toast" class="toast-message"></div>
 
 <script>
-    // ----- SIMPLE BLACK THEME, REMOVED ALL GLASS / GRADIENTS / EXTRA DECORATIONS -----
+    // ----- PURE BLACK THEME, WEATHER: CURRENT CONDITIONS ONLY (NO FORECASTS) -----
     let currentPage = 0;
     const pages = ['time', 'weather', 'alarm'];
     let touchStartX = 0;
@@ -726,11 +684,12 @@
         checkAlarms(now);
     }
 
-    // ---- WEATHER (flat, minimal api) ----
+    // ---- WEATHER (CURRENT ONLY, NO FORECASTS) ----
     let currentCoords = { lat: 40.7128, lon: -74.0060 };
+    
     async function getWeather(lat, lon) {
         try {
-            const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m&hourly=temperature_2m,precipitation_probability,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto&forecast_days=6`;
+            const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m&timezone=auto`;
             const res = await fetch(url);
             const data = await res.json();
             if (data.current) {
@@ -741,81 +700,53 @@
                 const wIcon = getWeatherSymbol(data.current.weather_code);
                 document.getElementById('weather-icon').textContent = wIcon;
                 document.getElementById('description').textContent = getWeatherDesc(data.current.weather_code);
-                updateHourlySimple(data);
-                updateDailySimple(data);
                 document.getElementById('weather-last-updated').textContent = `updated ${new Date().toLocaleTimeString()}`;
-                localStorage.setItem('wxCache', JSON.stringify({ data, lat, lon, ts: Date.now() }));
+                
+                // Cache only current weather
+                localStorage.setItem('wxCache', JSON.stringify({ 
+                    current: data.current, 
+                    lat, lon, 
+                    ts: Date.now() 
+                }));
             }
         } catch(e) {
             showToast('weather offline');
             const cached = localStorage.getItem('wxCache');
-            if(cached) { try {
-                const c = JSON.parse(cached);
-                if(Date.now() - c.ts < 3600000) applyWeatherFromCache(c.data);
-            } catch(e){}
+            if(cached) { 
+                try {
+                    const c = JSON.parse(cached);
+                    if(Date.now() - c.ts < 3600000 && c.current) {
+                        document.getElementById('temperature').textContent = Math.round(c.current.temperature_2m);
+                        document.getElementById('feels-like').textContent = `${Math.round(c.current.apparent_temperature)}°`;
+                        document.getElementById('humidity').textContent = `${c.current.relative_humidity_2m}%`;
+                        document.getElementById('wind').textContent = `${Math.round(c.current.wind_speed_10m)} km/h`;
+                        document.getElementById('weather-icon').textContent = getWeatherSymbol(c.current.weather_code);
+                        document.getElementById('description').textContent = getWeatherDesc(c.current.weather_code);
+                    }
+                } catch(e){}
             }
         }
     }
 
-    function applyWeatherFromCache(data) {
-        if(!data.current) return;
-        document.getElementById('temperature').textContent = Math.round(data.current.temperature_2m);
-        document.getElementById('feels-like').textContent = `${Math.round(data.current.apparent_temperature)}°`;
-        document.getElementById('humidity').textContent = `${data.current.relative_humidity_2m}%`;
-        document.getElementById('wind').textContent = `${Math.round(data.current.wind_speed_10m)} km/h`;
-        document.getElementById('weather-icon').textContent = getWeatherSymbol(data.current.weather_code);
-        document.getElementById('description').textContent = getWeatherDesc(data.current.weather_code);
-        updateHourlySimple(data);
-        updateDailySimple(data);
-    }
-
     function getWeatherSymbol(code) {
-        const map = {0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'🌫️',51:'🌧️',53:'🌧️',61:'🌦️',63:'🌧️',71:'🌨️',73:'❄️',75:'❄️',80:'🌦️',95:'⛈️'};
+        const map = {0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'🌫️',48:'🌫️',51:'🌧️',53:'🌧️',55:'🌧️',61:'🌦️',63:'🌧️',65:'🌧️',66:'🌨️',67:'🌨️',71:'🌨️',73:'🌨️',75:'❄️',77:'🌨️',80:'🌦️',81:'🌧️',85:'🌨️',86:'❄️',95:'⛈️'};
         return map[code] || '🌡️';
     }
+    
     function getWeatherDesc(code) {
-        const desc = {0:'clear',1:'clear',2:'partly cloudy',3:'overcast',45:'fog',51:'drizzle',61:'rain',63:'rain',71:'snow',73:'snow',80:'shower',95:'storm'};
+        const desc = {0:'clear sky',1:'mainly clear',2:'partly cloudy',3:'overcast',45:'fog',48:'fog',51:'light drizzle',53:'moderate drizzle',55:'dense drizzle',61:'light rain',63:'moderate rain',65:'heavy rain',66:'freezing rain',67:'heavy freezing rain',71:'light snow',73:'moderate snow',75:'heavy snow',77:'snow grains',80:'rain showers',81:'heavy showers',85:'snow showers',86:'heavy snow showers',95:'thunderstorm'};
         return desc[code] || 'mixed';
     }
-    function updateHourlySimple(data) {
-        if(!data.hourly) return;
-        const hourlyDiv = document.getElementById('hourly-forecast');
-        const nowH = new Date().getHours();
-        let html = '';
-        for(let i=0; i<8; i++) {
-            let idx = (nowH + i) % 24;
-            let temp = Math.round(data.hourly.temperature_2m[idx]);
-            let wcode = data.hourly.weather_code[idx];
-            let precip = data.hourly.precipitation_probability?.[idx] || 0;
-            let label = i===0 ? 'now' : `${idx}:00`;
-            html += `<div class="fc-item"><div>${label}</div><div style="font-size:28px;">${getWeatherSymbol(wcode)}</div><div class="fc-temp">${temp}°</div>${precip>0 ? `<div class="small-precip">💧${precip}%</div>` : ''}</div>`;
-        }
-        hourlyDiv.innerHTML = html;
-    }
-    function updateDailySimple(data) {
-        if(!data.daily) return;
-        const dailyDiv = document.getElementById('daily-forecast');
-        let html = '';
-        const weekdays = ['S','M','T','W','T','F','S'];
-        const days = data.daily.time.slice(1,6);
-        for(let i=0; i<days.length; i++) {
-            const date = new Date(days[i]);
-            const maxT = Math.round(data.daily.temperature_2m_max[i+1]);
-            const minT = Math.round(data.daily.temperature_2m_min[i+1]);
-            const wcode = data.daily.weather_code[i+1];
-            const precip = data.daily.precipitation_probability_max?.[i+1] || 0;
-            html += `<div class="fc-item"><div>${weekdays[date.getDay()]}</div><div style="font-size:26px;">${getWeatherSymbol(wcode)}</div><div class="fc-temp">${maxT}°/${minT}°</div>${precip>15 ? `<div class="small-precip">💧${precip}%</div>` : ''}</div>`;
-        }
-        dailyDiv.innerHTML = html;
-    }
 
-    async function getLocationHuman(lat,lon) {
+    async function getLocationHuman(lat, lon) {
         try {
             const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=12`);
             const data = await res.json();
             const city = data.address?.city || data.address?.town || data.address?.village || `${lat.toFixed(1)},${lon.toFixed(1)}`;
             document.getElementById('location').textContent = city;
-        } catch(e) { document.getElementById('location').textContent = `${lat.toFixed(1)},${lon.toFixed(1)}`; }
+        } catch(e) { 
+            document.getElementById('location').textContent = `${lat.toFixed(1)},${lon.toFixed(1)}`; 
+        }
     }
 
     function getUserWeather() {
@@ -830,18 +761,37 @@
                 getWeather(40.7128, -74.0060);
                 document.getElementById('location').textContent = 'New York';
             });
-        } else { getWeather(40.7128, -74.0060); }
+        } else { 
+            getWeather(40.7128, -74.0060);
+            document.getElementById('location').textContent = 'New York';
+        }
     }
 
-    // ----- ALARMS (flat storage) -----
+    function refreshWeather() {
+        if(currentCoords) {
+            getWeather(currentCoords.lat, currentCoords.lon);
+            getLocationHuman(currentCoords.lat, currentCoords.lon);
+        } else {
+            getUserWeather();
+        }
+    }
+
+    // ----- ALARMS -----
     let alarms = JSON.parse(localStorage.getItem('alarms_blk')) || [];
     let ringingAlarm = null;
     let alarmTimer = null;
 
-    function saveAlarms() { localStorage.setItem('alarms_blk', JSON.stringify(alarms)); renderAlarms(); }
+    function saveAlarms() { 
+        localStorage.setItem('alarms_blk', JSON.stringify(alarms)); 
+        renderAlarms(); 
+    }
+    
     function renderAlarms() {
         const container = document.getElementById('alarms-list');
-        if(!alarms.length) { container.innerHTML = '<div class="empty-alarms">no alarms · tap +</div>'; return; }
+        if(!alarms.length) { 
+            container.innerHTML = '<div class="empty-alarms">no alarms · tap +</div>'; 
+            return; 
+        }
         container.innerHTML = alarms.map((a, idx) => `
             <div class="alarm-row">
                 <div class="time-display-alarm">${a.time}</div>
@@ -851,11 +801,23 @@
                 </div>
             </div>
         `).join('');
+        
         document.querySelectorAll('[data-toggle]').forEach(btn => {
-            btn.addEventListener('click', (e) => { let i = parseInt(btn.dataset.toggle); alarms[i].enabled = !alarms[i].enabled; saveAlarms(); showToast(`alarm ${alarms[i].enabled ? 'on' : 'off'}`); });
+            btn.addEventListener('click', (e) => { 
+                let i = parseInt(btn.dataset.toggle); 
+                alarms[i].enabled = !alarms[i].enabled; 
+                saveAlarms(); 
+                showToast(`alarm ${alarms[i].enabled ? 'on' : 'off'}`); 
+            });
         });
+        
         document.querySelectorAll('[data-del]').forEach(btn => {
-            btn.addEventListener('click', (e) => { let i = parseInt(btn.dataset.del); alarms.splice(i,1); saveAlarms(); showToast('deleted'); });
+            btn.addEventListener('click', (e) => { 
+                let i = parseInt(btn.dataset.del); 
+                alarms.splice(i,1); 
+                saveAlarms(); 
+                showToast('deleted'); 
+            });
         });
     }
 
@@ -890,11 +852,17 @@
             const ac = new (window.AudioContext || window.webkitAudioContext)();
             const osc = ac.createOscillator();
             const gain = ac.createGain();
-            osc.connect(gain); gain.connect(ac.destination);
+            osc.connect(gain); 
+            gain.connect(ac.destination);
             osc.frequency.value = 880;
             gain.gain.value = 0.2;
             osc.start();
-            setTimeout(() => { if(ac.state !== 'closed') { osc.stop(); ac.close(); } }, 2800);
+            setTimeout(() => { 
+                if(ac.state !== 'closed') { 
+                    osc.stop(); 
+                    ac.close(); 
+                } 
+            }, 2800);
         } catch(e) {}
     }
 
@@ -931,9 +899,9 @@
         setTimeout(() => t.style.display = 'none', 1800);
     }
 
-    // event binding
+    // ----- EVENT LISTENERS -----
     document.getElementById('getLocationBtn').addEventListener('click', getUserWeather);
-    document.getElementById('refreshWeatherBtn').addEventListener('click', () => { if(currentCoords) getWeather(currentCoords.lat, currentCoords.lon); else getUserWeather(); });
+    document.getElementById('refreshWeatherBtn').addEventListener('click', refreshWeather);
     document.getElementById('addAlarmBtn').addEventListener('click', () => document.getElementById('alarm-modal').style.display = 'flex');
     document.getElementById('setAlarmBtn').addEventListener('click', addNewAlarm);
     document.getElementById('cancelModalBtn').addEventListener('click', () => document.getElementById('alarm-modal').style.display = 'none');
@@ -941,15 +909,26 @@
     document.getElementById('stopAlarmBtn').addEventListener('click', stopRing);
     document.getElementById('ringingSnoozeBtn').addEventListener('click', snoozeCurrent);
     document.getElementById('ringingStopBtn').addEventListener('click', stopRing);
-    window.addEventListener('click', (e) => { if(e.target === document.getElementById('alarm-modal')) document.getElementById('alarm-modal').style.display = 'none'; });
+    
+    window.addEventListener('click', (e) => { 
+        if(e.target === document.getElementById('alarm-modal')) 
+            document.getElementById('alarm-modal').style.display = 'none'; 
+    });
 
+    // ----- INIT -----
     setInterval(updateTime, 1000);
     updateTime();
     initSwipe();
     getUserWeather();
     renderAlarms();
-    if('wakeLock' in navigator) navigator.wakeLock.request('screen').catch(e=>{});
-    setInterval(() => { if(currentCoords) getWeather(currentCoords.lat, currentCoords.lon); }, 300000);
+    
+    if('wakeLock' in navigator) 
+        navigator.wakeLock.request('screen').catch(e=>{});
+    
+    // Refresh weather every 10 minutes (only current conditions)
+    setInterval(() => { 
+        if(currentCoords) getWeather(currentCoords.lat, currentCoords.lon); 
+    }, 600000);
 </script>
 </body>
 </html>
