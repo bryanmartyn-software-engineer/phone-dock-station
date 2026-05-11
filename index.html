@@ -24,8 +24,8 @@
         }
 
         .dashboard {
-            max-width: 640px;
-            margin: 20px auto;
+            max-width: 520px;
+            margin: 0 auto;
             position: relative;
             cursor: grab;
             touch-action: pan-y pinch-zoom;
@@ -41,10 +41,10 @@
         .panel {
             background: #0c0c0c;
             border-radius: 28px;
-            padding: 24px 32px;
+            padding: 32px 24px;
             border: 1px solid #222222;
-            height: 360px;
-            /* compact 16:9 ratio */
+            height: 480px;
+            /* consistent height */
             display: flex;
             flex-direction: column;
             justify-content: space-between;
@@ -105,20 +105,20 @@
         }
 
         .clock-digits {
-            font-size: 80px;
+            font-size: 64px;
             font-weight: 600;
             font-family: 'SF Mono', 'Courier New', monospace;
             letter-spacing: 4px;
             display: flex;
             justify-content: center;
             align-items: baseline;
-            gap: 4px;
+            gap: 2px;
             flex-wrap: wrap;
             color: #ffffff;
         }
 
         .clock-digits span {
-            font-size: 86px;
+            font-size: 68px;
         }
 
         .separator {
@@ -152,11 +152,11 @@
         }
 
         .date-text {
-            font-size: 20px;
+            font-size: 18px;
             font-weight: 400;
             color: #aaaaaa;
-            margin-top: 10px;
-            margin-bottom: 10px;
+            margin-top: 14px;
+            margin-bottom: 14px;
             letter-spacing: 0.5px;
         }
 
@@ -166,7 +166,7 @@
             display: inline-block;
             padding: 8px 24px;
             border-radius: 48px;
-            margin-top: 16px;
+            margin-top: 18px;
             color: #dddddd;
             font-weight: 450;
         }
@@ -245,21 +245,21 @@
         }
 
         .temp-big {
-            font-size: 80px;
+            font-size: 58px;
             font-weight: 600;
             font-family: monospace;
-            letter-spacing: -2px;
+            letter-spacing: -1px;
         }
 
         .weather-icon-large {
-            font-size: 80px;
+            font-size: 64px;
         }
 
         .desc-pill {
             background: #141414;
-            padding: 8px 20px;
+            padding: 6px 18px;
             border-radius: 40px;
-            font-size: 18px;
+            font-size: 16px;
             text-transform: capitalize;
         }
 
@@ -274,7 +274,7 @@
             background: #111111;
             flex: 1;
             padding: 12px 8px;
-            border-radius: 20px;
+            border-radius: 24px;
             text-align: center;
             font-size: 12px;
             min-width: 80px;
@@ -295,7 +295,205 @@
             margin-top: 28px;
         }
 
+        /* ========== ALARM SECTION ========== */
+        .alarm-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 22px;
+        }
 
+        .alarm-header h2 {
+            font-size: 22px;
+            font-weight: 500;
+        }
+
+        .alarm-list-container {
+            flex-grow: 1;
+            /* take available space */
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+
+        .alarm-row {
+            background: #0f0f0f;
+            padding: 16px 18px;
+            border-radius: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            border: 1px solid #1e1e1e;
+        }
+
+        .time-display-alarm {
+            font-size: 22px;
+            font-weight: 540;
+            font-family: monospace;
+            letter-spacing: 1px;
+        }
+
+        .alarm-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .mini-btn {
+            background: #181818;
+            border: none;
+            font-size: 20px;
+            padding: 8px 14px;
+            border-radius: 40px;
+            color: #ddd;
+            cursor: pointer;
+            transition: 0.05s linear;
+        }
+
+        .mini-btn:active {
+            background: #2c2c2c;
+        }
+
+        .double-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .action-wide {
+            flex: 1;
+            background: #111;
+            border: none;
+            padding: 14px 0;
+            border-radius: 32px;
+            color: white;
+            font-size: 15px;
+            font-weight: 500;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .danger-action {
+            background: #1f1212;
+            color: #ff8a7a;
+        }
+
+        .alarm-note {
+            font-size: 10px;
+            text-align: center;
+            margin-top: 20px;
+            color: #3a3a3a;
+        }
+
+        .empty-alarms {
+            text-align: center;
+            padding: 44px 20px;
+            color: #5a5a5a;
+            font-size: 14px;
+        }
+
+        /* MODALS — black minimal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.96);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-card {
+            background: #0c0c0c;
+            width: 85%;
+            max-width: 320px;
+            padding: 30px 22px;
+            border-radius: 44px;
+            border: 1px solid #222;
+            text-align: center;
+        }
+
+        .modal-card h3 {
+            font-size: 24px;
+            font-weight: 500;
+            margin-bottom: 24px;
+        }
+
+        .time-picker {
+            background: #1a1a1a;
+            border: none;
+            font-size: 46px;
+            font-family: monospace;
+            color: white;
+            text-align: center;
+            padding: 14px;
+            border-radius: 38px;
+            width: 100%;
+            margin: 18px 0;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 14px;
+            margin-top: 12px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 14px;
+            border-radius: 40px;
+            background: #181818;
+            border: none;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .modal-save {
+            background: #2a2a2a;
+            color: white;
+        }
+
+        .modal-cancel {
+            background: #1a1a1a;
+        }
+
+        /* ringing alarm */
+        .ringing .modal-card {
+            animation: subtlePulse 0.9s infinite;
+            background: #150000;
+            border: 1px solid #aa2e2e;
+        }
+
+        @keyframes subtlePulse {
+            0% {
+                border-color: #8b2c2c;
+            }
+
+            100% {
+                border-color: #c04444;
+            }
+        }
+
+        .ringing-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 16px;
+            justify-content: center;
+        }
+
+        .ring-snooze {
+            background: #1e2a36;
+            padding: 12px 20px;
+            border-radius: 40px;
+        }
+
+        .ring-stop {
+            background: #3a1c1c;
+            padding: 12px 24px;
+        }
 
         .toast-message {
             position: fixed;
@@ -386,19 +584,57 @@
             </div>
         </div>
 
-
+        <!-- PAGE 3: ALARMS -->
+        <div class="page alarm-page">
+            <div class="panel">
+                <div class="alarm-header">
+                    <h2>alarms</h2>
+                    <button class="icon-flat" id="addAlarmBtn">+</button>
+                </div>
+                <div id="alarms-list" class="alarm-list-container">
+                    <div class="empty-alarms">no alarms · tap +</div>
+                </div>
+                <div class="double-actions">
+                    <button class="action-wide" id="snoozeBtn">snooze 5m</button>
+                    <button class="action-wide danger-action" id="stopAlarmBtn">stop</button>
+                </div>
+                <div class="alarm-note">alarms work in background</div>
+            </div>
+        </div>
 
         <div class="indicators" id="indicatorsContainer"></div>
     </div>
 
+    <!-- MODAL: Add alarm -->
+    <div id="alarm-modal" class="modal-overlay">
+        <div class="modal-card">
+            <h3>set alarm</h3>
+            <input type="time" id="alarm-time" class="time-picker" step="60">
+            <div class="modal-buttons">
+                <button id="setAlarmBtn" class="modal-btn modal-save">set</button>
+                <button id="cancelModalBtn" class="modal-btn modal-cancel">cancel</button>
+            </div>
+        </div>
+    </div>
 
+    <!-- MODAL: Ringing -->
+    <div id="alarm-ringing" class="modal-overlay ringing">
+        <div class="modal-card">
+            <h2>⏰ wake up</h2>
+            <div class="clock-digits" style="font-size: 48px;" id="ringing-time">00:00</div>
+            <div class="ringing-buttons">
+                <button id="ringingSnoozeBtn" class="modal-btn ring-snooze">snooze 5m</button>
+                <button id="ringingStopBtn" class="modal-btn ring-stop">stop</button>
+            </div>
+        </div>
+    </div>
 
     <div id="toast" class="toast-message"></div>
 
     <script>
         // ----- PURE BLACK THEME, WEATHER: CURRENT CONDITIONS ONLY (NO FORECASTS) -----
         let currentPage = 0;
-        const pages = ['time', 'weather'];
+        const pages = ['time', 'weather', 'alarm'];
         let touchStartX = 0;
 
         // Swipe + indicators
@@ -465,6 +701,7 @@
             else greet = '🌙 good evening';
             document.getElementById('greeting').textContent = greet;
             document.getElementById('time-last-updated').textContent = `tick ${now.toLocaleTimeString()}`;
+            checkAlarms(now);
         }
 
         // ---- WEATHER (CURRENT ONLY, NO FORECASTS) ----
@@ -559,7 +796,121 @@
             }
         }
 
+        // ----- ALARMS -----
+        let alarms = JSON.parse(localStorage.getItem('alarms_blk')) || [];
+        let ringingAlarm = null;
+        let alarmTimer = null;
 
+        function saveAlarms() {
+            localStorage.setItem('alarms_blk', JSON.stringify(alarms));
+            renderAlarms();
+        }
+
+        function renderAlarms() {
+            const container = document.getElementById('alarms-list');
+            if (!alarms.length) {
+                container.innerHTML = '<div class="empty-alarms">no alarms · tap +</div>';
+                return;
+            }
+            container.innerHTML = alarms.map((a, idx) => `
+            <div class="alarm-row">
+                <div class="time-display-alarm">${a.time}</div>
+                <div class="alarm-buttons">
+                    <button class="mini-btn" data-toggle="${idx}">${a.enabled ? '🔔' : '🔕'}</button>
+                    <button class="mini-btn" data-del="${idx}">🗑️</button>
+                </div>
+            </div>
+        `).join('');
+
+            document.querySelectorAll('[data-toggle]').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    let i = parseInt(btn.dataset.toggle);
+                    alarms[i].enabled = !alarms[i].enabled;
+                    saveAlarms();
+                    showToast(`alarm ${alarms[i].enabled ? 'on' : 'off'}`);
+                });
+            });
+
+            document.querySelectorAll('[data-del]').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    let i = parseInt(btn.dataset.del);
+                    alarms.splice(i, 1);
+                    saveAlarms();
+                    showToast('deleted');
+                });
+            });
+        }
+
+        function checkAlarms(now) {
+            const currentTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+            for (let alarm of alarms) {
+                if (alarm.enabled && !alarm.snoozed && alarm.time === currentTime) {
+                    triggerRing(alarm);
+                    break;
+                }
+                if (alarm.snoozed && alarm.snoozeUntil && new Date() >= new Date(alarm.snoozeUntil)) {
+                    alarm.snoozed = false;
+                    alarm.snoozeUntil = null;
+                    saveAlarms();
+                }
+            }
+        }
+
+        function triggerRing(alarm) {
+            if (ringingAlarm) return;
+            ringingAlarm = alarm;
+            document.getElementById('ringing-time').textContent = alarm.time;
+            document.getElementById('alarm-ringing').style.display = 'flex';
+            if (navigator.vibrate) navigator.vibrate([500, 300, 500]);
+            playBuzz();
+            if (alarmTimer) clearTimeout(alarmTimer);
+            alarmTimer = setTimeout(() => { stopRing(); }, 60000);
+        }
+
+        function playBuzz() {
+            try {
+                const ac = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ac.createOscillator();
+                const gain = ac.createGain();
+                osc.connect(gain);
+                gain.connect(ac.destination);
+                osc.frequency.value = 880;
+                gain.gain.value = 0.2;
+                osc.start();
+                setTimeout(() => {
+                    if (ac.state !== 'closed') {
+                        osc.stop();
+                        ac.close();
+                    }
+                }, 2800);
+            } catch (e) { }
+        }
+
+        function stopRing() {
+            document.getElementById('alarm-ringing').style.display = 'none';
+            if (alarmTimer) clearTimeout(alarmTimer);
+            ringingAlarm = null;
+        }
+
+        function snoozeCurrent() {
+            if (ringingAlarm) {
+                const snoozeTime = new Date(Date.now() + 5 * 60000);
+                ringingAlarm.snoozed = true;
+                ringingAlarm.snoozeUntil = snoozeTime;
+                saveAlarms();
+                stopRing();
+                showToast('snooze 5 min');
+            }
+        }
+
+        function addNewAlarm() {
+            const val = document.getElementById('alarm-time').value;
+            if (!val) { showToast('select time'); return; }
+            alarms.push({ time: val, enabled: true, snoozed: false, snoozeUntil: null });
+            saveAlarms();
+            document.getElementById('alarm-modal').style.display = 'none';
+            showToast(`alarm ${val}`);
+        }
 
         function showToast(msg) {
             const t = document.getElementById('toast');
@@ -571,12 +922,25 @@
         // ----- EVENT LISTENERS -----
         document.getElementById('getLocationBtn').addEventListener('click', getUserWeather);
         document.getElementById('refreshWeatherBtn').addEventListener('click', refreshWeather);
+        document.getElementById('addAlarmBtn').addEventListener('click', () => document.getElementById('alarm-modal').style.display = 'flex');
+        document.getElementById('setAlarmBtn').addEventListener('click', addNewAlarm);
+        document.getElementById('cancelModalBtn').addEventListener('click', () => document.getElementById('alarm-modal').style.display = 'none');
+        document.getElementById('snoozeBtn').addEventListener('click', snoozeCurrent);
+        document.getElementById('stopAlarmBtn').addEventListener('click', stopRing);
+        document.getElementById('ringingSnoozeBtn').addEventListener('click', snoozeCurrent);
+        document.getElementById('ringingStopBtn').addEventListener('click', stopRing);
+
+        window.addEventListener('click', (e) => {
+            if (e.target === document.getElementById('alarm-modal'))
+                document.getElementById('alarm-modal').style.display = 'none';
+        });
 
         // ----- INIT -----
         setInterval(updateTime, 1000);
         updateTime();
         initSwipe();
         getUserWeather();
+        renderAlarms();
 
         if ('wakeLock' in navigator)
             navigator.wakeLock.request('screen').catch(e => { });
