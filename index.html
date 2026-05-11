@@ -24,7 +24,7 @@
         }
 
         .dashboard {
-            max-width: 800px;
+            max-width: 640px;
             margin: 20px auto;
             position: relative;
             cursor: grab;
@@ -40,11 +40,11 @@
         /* flat panels – solid black with subtle border */
         .panel {
             background: #0c0c0c;
-            border-radius: 36px;
-            padding: 40px 52px;
+            border-radius: 28px;
+            padding: 24px 32px;
             border: 1px solid #222222;
-            height: 450px;
-            /* 16:9 aspect ratio relative to 800px width */
+            height: 360px;
+            /* compact 16:9 ratio */
             display: flex;
             flex-direction: column;
             justify-content: space-between;
@@ -105,20 +105,20 @@
         }
 
         .clock-digits {
-            font-size: 110px;
+            font-size: 80px;
             font-weight: 600;
             font-family: 'SF Mono', 'Courier New', monospace;
-            letter-spacing: 8px;
+            letter-spacing: 4px;
             display: flex;
             justify-content: center;
             align-items: baseline;
-            gap: 6px;
+            gap: 4px;
             flex-wrap: wrap;
             color: #ffffff;
         }
 
         .clock-digits span {
-            font-size: 118px;
+            font-size: 86px;
         }
 
         .separator {
@@ -141,32 +141,32 @@
         }
 
         #ampm {
-            font-size: 24px;
+            font-size: 20px;
             font-weight: 500;
             background: #1a1a1a;
-            padding: 8px 18px;
+            padding: 6px 14px;
             border-radius: 40px;
-            margin-left: 14px;
+            margin-left: 10px;
             letter-spacing: 0px;
             color: #ccc;
         }
 
         .date-text {
-            font-size: 28px;
+            font-size: 20px;
             font-weight: 400;
             color: #aaaaaa;
-            margin-top: 14px;
-            margin-bottom: 14px;
+            margin-top: 10px;
+            margin-bottom: 10px;
             letter-spacing: 0.5px;
         }
 
         .greeting-simple {
-            font-size: 24px;
+            font-size: 18px;
             background: #111111;
             display: inline-block;
-            padding: 12px 36px;
+            padding: 8px 24px;
             border-radius: 48px;
-            margin-top: 24px;
+            margin-top: 16px;
             color: #dddddd;
             font-weight: 450;
         }
@@ -189,7 +189,7 @@
         }
 
         .weather-header h2 {
-            font-size: 28px;
+            font-size: 22px;
             font-weight: 500;
             color: #eee;
             letter-spacing: -0.3px;
@@ -245,21 +245,21 @@
         }
 
         .temp-big {
-            font-size: 110px;
+            font-size: 80px;
             font-weight: 600;
             font-family: monospace;
-            letter-spacing: -3px;
+            letter-spacing: -2px;
         }
 
         .weather-icon-large {
-            font-size: 110px;
+            font-size: 80px;
         }
 
         .desc-pill {
             background: #141414;
-            padding: 12px 32px;
-            border-radius: 44px;
-            font-size: 24px;
+            padding: 8px 20px;
+            border-radius: 40px;
+            font-size: 18px;
             text-transform: capitalize;
         }
 
@@ -273,17 +273,17 @@
         .stat-card {
             background: #111111;
             flex: 1;
-            padding: 16px 12px;
-            border-radius: 24px;
+            padding: 12px 8px;
+            border-radius: 20px;
             text-align: center;
-            font-size: 14px;
-            min-width: 100px;
+            font-size: 12px;
+            min-width: 80px;
         }
 
         .stat-value {
-            font-size: 22px;
+            font-size: 18px;
             font-weight: 600;
-            margin-top: 8px;
+            margin-top: 6px;
             display: block;
             color: white;
         }
