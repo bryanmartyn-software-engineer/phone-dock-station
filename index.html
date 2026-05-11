@@ -34,23 +34,18 @@
             cursor: grabbing;
         }
 
-        /* minimal swipe hint */
-        .swipe-hint {
-            text-align: center;
-            font-size: 10px;
-            letter-spacing: 0.5px;
-            color: #444;
-            margin-bottom: 12px;
-            user-select: none;
-            font-weight: 400;
-        }
+
 
         /* flat panels – solid black with subtle border */
         .panel {
             background: #0c0c0c;
             border-radius: 28px;
-            padding: 28px 22px;
+            padding: 32px 24px;
             border: 1px solid #222222;
+            height: 480px; /* consistent height */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
             transition: none;
             box-shadow: none;
         }
@@ -102,6 +97,8 @@
         /* ========== TIME MODULE ========== */
         .time-block {
             text-align: center;
+            justify-content: center;
+            gap: 15px;
         }
 
         .clock-digits {
@@ -302,7 +299,7 @@
         }
 
         .alarm-list-container {
-            max-height: 340px;
+            flex-grow: 1; /* take available space */
             overflow-y: auto;
             margin-bottom: 20px;
         }
@@ -518,7 +515,7 @@
 </head>
 <body>
 <div class="dashboard">
-    <div class="swipe-hint">◀  swipe  ▶</div>
+
 
     <!-- PAGE 1: TIME -->
     <div class="page time-page active-page">
