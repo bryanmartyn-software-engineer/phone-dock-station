@@ -705,7 +705,7 @@
         }
 
         // ---- WEATHER (CURRENT ONLY, NO FORECASTS) ----
-        let currentCoords = { lat: 3.1390, lon: 101.6869 };
+        let currentCoords = { lat: 40.7128, lon: -74.0060 };
 
         async function getWeather(lat, lon) {
             try {
@@ -778,12 +778,12 @@
                     getLocationHuman(currentCoords.lat, currentCoords.lon);
                 }, () => {
                     showToast('default location');
-                    getWeather(3.1390, 101.6869);
-                    document.getElementById('location').textContent = 'Kuala Lumpur';
+                    getWeather(40.7128, -74.0060);
+                    document.getElementById('location').textContent = 'New York';
                 });
             } else {
-                getWeather(3.1390, 101.6869);
-                document.getElementById('location').textContent = 'Kuala Lumpur';
+                getWeather(40.7128, -74.0060);
+                document.getElementById('location').textContent = 'New York';
             }
         }
 
