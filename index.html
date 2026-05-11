@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
@@ -23,8 +24,8 @@
         }
 
         .dashboard {
-            max-width: 640px;
-            margin: 20px auto;
+            max-width: 800px;
+            margin: 40px auto;
             position: relative;
             cursor: grab;
             touch-action: pan-y pinch-zoom;
@@ -39,10 +40,11 @@
         /* flat panels – solid black with subtle border */
         .panel {
             background: #0c0c0c;
-            border-radius: 28px;
-            padding: 24px 32px;
+            border-radius: 32px;
+            padding: 32px 48px;
             border: 1px solid #222222;
-            height: 360px; /* compact 16:9 ratio */
+            height: 380px;
+            /* landscape height */
             display: flex;
             flex-direction: column;
             justify-content: space-between;
@@ -65,6 +67,7 @@
                 opacity: 0;
                 transform: translateX(6px);
             }
+
             to {
                 opacity: 1;
                 transform: translateX(0);
@@ -102,10 +105,10 @@
         }
 
         .clock-digits {
-            font-size: 80px;
+            font-size: 92px;
             font-weight: 600;
             font-family: 'SF Mono', 'Courier New', monospace;
-            letter-spacing: 4px;
+            letter-spacing: 6px;
             display: flex;
             justify-content: center;
             align-items: baseline;
@@ -115,7 +118,7 @@
         }
 
         .clock-digits span {
-            font-size: 86px;
+            font-size: 100px;
         }
 
         .separator {
@@ -126,37 +129,44 @@
         }
 
         @keyframes simpleBlink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.3;
+            }
         }
 
         #ampm {
-            font-size: 20px;
+            font-size: 24px;
             font-weight: 500;
             background: #1a1a1a;
-            padding: 6px 14px;
+            padding: 8px 18px;
             border-radius: 40px;
-            margin-left: 10px;
+            margin-left: 14px;
             letter-spacing: 0px;
             color: #ccc;
         }
 
         .date-text {
-            font-size: 20px;
+            font-size: 24px;
             font-weight: 400;
             color: #aaaaaa;
-            margin-top: 10px;
-            margin-bottom: 10px;
+            margin-top: 14px;
+            margin-bottom: 14px;
             letter-spacing: 0.5px;
         }
 
         .greeting-simple {
-            font-size: 18px;
+            font-size: 22px;
             background: #111111;
             display: inline-block;
-            padding: 8px 24px;
+            padding: 10px 32px;
             border-radius: 48px;
-            margin-top: 16px;
+            margin-top: 18px;
             color: #dddddd;
             font-weight: 450;
         }
@@ -235,21 +245,21 @@
         }
 
         .temp-big {
-            font-size: 80px;
+            font-size: 96px;
             font-weight: 600;
             font-family: monospace;
             letter-spacing: -2px;
         }
 
         .weather-icon-large {
-            font-size: 80px;
+            font-size: 100px;
         }
 
         .desc-pill {
             background: #141414;
-            padding: 8px 20px;
+            padding: 10px 24px;
             border-radius: 40px;
-            font-size: 18px;
+            font-size: 20px;
             text-transform: capitalize;
         }
 
@@ -263,17 +273,17 @@
         .stat-card {
             background: #111111;
             flex: 1;
-            padding: 12px 8px;
-            border-radius: 20px;
+            padding: 16px 12px;
+            border-radius: 24px;
             text-align: center;
-            font-size: 12px;
-            min-width: 80px;
+            font-size: 14px;
+            min-width: 100px;
         }
 
         .stat-value {
-            font-size: 18px;
+            font-size: 22px;
             font-weight: 600;
-            margin-top: 6px;
+            margin-top: 8px;
             display: block;
             color: white;
         }
@@ -308,266 +318,274 @@
             width: 3px;
             height: 3px;
         }
+
         ::-webkit-scrollbar-track {
             background: #111;
         }
+
         ::-webkit-scrollbar-thumb {
             background: #333;
         }
 
-        button, .icon-flat, .action-wide, .mini-btn {
+        button,
+        .icon-flat,
+        .action-wide,
+        .mini-btn {
             cursor: pointer;
             font-family: inherit;
         }
     </style>
 </head>
+
 <body>
-<div class="dashboard">
+    <div class="dashboard">
 
 
-    <!-- PAGE 1: TIME -->
-    <div class="page time-page active-page">
-        <div class="panel time-block">
-            <div class="clock-digits">
-                <span id="hours">00</span>
-                <span class="separator">:</span>
-                <span id="minutes">00</span>
-                <span class="separator">:</span>
-                <span id="seconds">00</span>
-                <span id="ampm">AM</span>
-            </div>
-            <div class="date-text">
-                <span id="weekday">Monday</span>, <span id="month">Jan</span> <span id="day">1</span>, <span id="year">2025</span>
-            </div>
-            <div class="greeting-simple" id="greeting">Good evening</div>
-            <div class="time-footnote" id="time-last-updated"></div>
-        </div>
-    </div>
-
-    <!-- PAGE 2: WEATHER (CURRENT ONLY - NO HOURLY, NO 5-DAY) -->
-    <div class="page weather-page">
-        <div class="panel">
-            <div class="weather-header">
-                <h2>weather</h2>
-                <div class="loc-group">
-                    <span class="loc-name" id="location">--</span>
-                    <button class="icon-flat" id="getLocationBtn" aria-label="locate">📍</button>
-                    <button class="icon-flat" id="refreshWeatherBtn" aria-label="refresh">↻</button>
+        <!-- PAGE 1: TIME -->
+        <div class="page time-page active-page">
+            <div class="panel time-block">
+                <div class="clock-digits">
+                    <span id="hours">00</span>
+                    <span class="separator">:</span>
+                    <span id="minutes">00</span>
+                    <span class="separator">:</span>
+                    <span id="seconds">00</span>
+                    <span id="ampm">AM</span>
                 </div>
+                <div class="date-text">
+                    <span id="weekday">Monday</span>, <span id="month">Jan</span> <span id="day">1</span>, <span
+                        id="year">2025</span>
+                </div>
+                <div class="greeting-simple" id="greeting">Good evening</div>
+                <div class="time-footnote" id="time-last-updated"></div>
             </div>
-            <div class="weather-main-row">
-                <div class="temp-big"><span id="temperature">--</span>°C</div>
-                <div class="weather-icon-large"><span id="weather-icon">☀️</span></div>
-                <div class="desc-pill"><span id="description">clear</span></div>
-            </div>
-            <div class="stats-row">
-                <div class="stat-card">💧 humidity<br><span class="stat-value" id="humidity">--%</span></div>
-                <div class="stat-card">💨 wind<br><span class="stat-value" id="wind">-- km/h</span></div>
-                <div class="stat-card">🌡️ feels<br><span class="stat-value" id="feels-like">--°</span></div>
-            </div>
-            <div class="last-updated-txt" id="weather-last-updated"></div>
         </div>
+
+        <!-- PAGE 2: WEATHER (CURRENT ONLY - NO HOURLY, NO 5-DAY) -->
+        <div class="page weather-page">
+            <div class="panel">
+                <div class="weather-header">
+                    <h2>weather</h2>
+                    <div class="loc-group">
+                        <span class="loc-name" id="location">--</span>
+                        <button class="icon-flat" id="getLocationBtn" aria-label="locate">📍</button>
+                        <button class="icon-flat" id="refreshWeatherBtn" aria-label="refresh">↻</button>
+                    </div>
+                </div>
+                <div class="weather-main-row">
+                    <div class="temp-big"><span id="temperature">--</span>°C</div>
+                    <div class="weather-icon-large"><span id="weather-icon">☀️</span></div>
+                    <div class="desc-pill"><span id="description">clear</span></div>
+                </div>
+                <div class="stats-row">
+                    <div class="stat-card">💧 humidity<br><span class="stat-value" id="humidity">--%</span></div>
+                    <div class="stat-card">💨 wind<br><span class="stat-value" id="wind">-- km/h</span></div>
+                    <div class="stat-card">🌡️ feels<br><span class="stat-value" id="feels-like">--°</span></div>
+                </div>
+                <div class="last-updated-txt" id="weather-last-updated"></div>
+            </div>
+        </div>
+
+
+
+        <div class="indicators" id="indicatorsContainer"></div>
     </div>
 
 
 
-    <div class="indicators" id="indicatorsContainer"></div>
-</div>
+    <div id="toast" class="toast-message"></div>
 
+    <script>
+        // ----- PURE BLACK THEME, WEATHER: CURRENT CONDITIONS ONLY (NO FORECASTS) -----
+        let currentPage = 0;
+        const pages = ['time', 'weather'];
+        let touchStartX = 0;
 
+        // Swipe + indicators
+        function initSwipe() {
+            const dash = document.querySelector('.dashboard');
+            dash.addEventListener('touchstart', (e) => { touchStartX = e.changedTouches[0].screenX; });
+            dash.addEventListener('touchend', (e) => {
+                const diff = e.changedTouches[0].screenX - touchStartX;
+                if (Math.abs(diff) > 45) {
+                    if (diff > 0 && currentPage > 0) { currentPage--; showPage(currentPage); }
+                    else if (diff < 0 && currentPage < pages.length - 1) { currentPage++; showPage(currentPage); }
+                }
+            });
+            buildIndicators();
+            showPage(0);
+        }
 
-<div id="toast" class="toast-message"></div>
+        function buildIndicators() {
+            const container = document.getElementById('indicatorsContainer');
+            container.innerHTML = '';
+            pages.forEach((_, idx) => {
+                const dot = document.createElement('div');
+                dot.className = 'dot' + (idx === 0 ? ' active' : '');
+                dot.addEventListener('click', () => { currentPage = idx; showPage(idx); });
+                container.appendChild(dot);
+            });
+        }
 
-<script>
-    // ----- PURE BLACK THEME, WEATHER: CURRENT CONDITIONS ONLY (NO FORECASTS) -----
-    let currentPage = 0;
-    const pages = ['time', 'weather'];
-    let touchStartX = 0;
+        function showPage(idx) {
+            document.querySelectorAll('.page').forEach((p, i) => {
+                p.classList.toggle('active-page', i === idx);
+            });
+            document.querySelectorAll('.dot').forEach((dot, i) => {
+                dot.classList.toggle('active', i === idx);
+            });
+            currentPage = idx;
+        }
 
-    // Swipe + indicators
-    function initSwipe() {
-        const dash = document.querySelector('.dashboard');
-        dash.addEventListener('touchstart', (e) => { touchStartX = e.changedTouches[0].screenX; });
-        dash.addEventListener('touchend', (e) => {
-            const diff = e.changedTouches[0].screenX - touchStartX;
-            if (Math.abs(diff) > 45) {
-                if (diff > 0 && currentPage > 0) { currentPage--; showPage(currentPage); }
-                else if (diff < 0 && currentPage < pages.length-1) { currentPage++; showPage(currentPage); }
-            }
-        });
-        buildIndicators();
-        showPage(0);
-    }
+        // ---- TIME ----
+        function updateTime() {
+            const now = new Date();
+            let hours = now.getHours();
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            const seconds = now.getSeconds().toString().padStart(2, '0');
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            let hour12 = hours % 12;
+            hour12 = hour12 ? hour12 : 12;
+            document.getElementById('hours').textContent = hour12.toString().padStart(2, '0');
+            document.getElementById('minutes').textContent = minutes;
+            document.getElementById('seconds').textContent = seconds;
+            document.getElementById('ampm').textContent = ampm;
+            const weekday = now.toLocaleDateString('en-US', { weekday: 'long' });
+            const month = now.toLocaleDateString('en-US', { month: 'short' });
+            const day = now.getDate();
+            const year = now.getFullYear();
+            document.getElementById('weekday').textContent = weekday;
+            document.getElementById('month').textContent = month;
+            document.getElementById('day').textContent = day;
+            document.getElementById('year').textContent = year;
+            const hourVal = now.getHours();
+            let greet = '';
+            if (hourVal < 12) greet = '🌅 good morning';
+            else if (hourVal < 18) greet = '☀️ good afternoon';
+            else greet = '🌙 good evening';
+            document.getElementById('greeting').textContent = greet;
+            document.getElementById('time-last-updated').textContent = `tick ${now.toLocaleTimeString()}`;
+        }
 
-    function buildIndicators() {
-        const container = document.getElementById('indicatorsContainer');
-        container.innerHTML = '';
-        pages.forEach((_, idx) => {
-            const dot = document.createElement('div');
-            dot.className = 'dot' + (idx === 0 ? ' active' : '');
-            dot.addEventListener('click', () => { currentPage = idx; showPage(idx); });
-            container.appendChild(dot);
-        });
-    }
+        // ---- WEATHER (CURRENT ONLY, NO FORECASTS) ----
+        let currentCoords = { lat: 40.7128, lon: -74.0060 };
 
-    function showPage(idx) {
-        document.querySelectorAll('.page').forEach((p, i) => {
-            p.classList.toggle('active-page', i === idx);
-        });
-        document.querySelectorAll('.dot').forEach((dot, i) => {
-            dot.classList.toggle('active', i === idx);
-        });
-        currentPage = idx;
-    }
+        async function getWeather(lat, lon) {
+            try {
+                const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m&timezone=auto`;
+                const res = await fetch(url);
+                const data = await res.json();
+                if (data.current) {
+                    document.getElementById('temperature').textContent = Math.round(data.current.temperature_2m);
+                    document.getElementById('feels-like').textContent = `${Math.round(data.current.apparent_temperature)}°`;
+                    document.getElementById('humidity').textContent = `${data.current.relative_humidity_2m}%`;
+                    document.getElementById('wind').textContent = `${Math.round(data.current.wind_speed_10m)} km/h`;
+                    const wIcon = getWeatherSymbol(data.current.weather_code);
+                    document.getElementById('weather-icon').textContent = wIcon;
+                    document.getElementById('description').textContent = getWeatherDesc(data.current.weather_code);
+                    document.getElementById('weather-last-updated').textContent = `updated ${new Date().toLocaleTimeString()}`;
 
-    // ---- TIME ----
-    function updateTime() {
-        const now = new Date();
-        let hours = now.getHours();
-        const minutes = now.getMinutes().toString().padStart(2,'0');
-        const seconds = now.getSeconds().toString().padStart(2,'0');
-        const ampm = hours >= 12 ? 'PM' : 'AM';
-        let hour12 = hours % 12;
-        hour12 = hour12 ? hour12 : 12;
-        document.getElementById('hours').textContent = hour12.toString().padStart(2,'0');
-        document.getElementById('minutes').textContent = minutes;
-        document.getElementById('seconds').textContent = seconds;
-        document.getElementById('ampm').textContent = ampm;
-        const weekday = now.toLocaleDateString('en-US', { weekday: 'long' });
-        const month = now.toLocaleDateString('en-US', { month: 'short' });
-        const day = now.getDate();
-        const year = now.getFullYear();
-        document.getElementById('weekday').textContent = weekday;
-        document.getElementById('month').textContent = month;
-        document.getElementById('day').textContent = day;
-        document.getElementById('year').textContent = year;
-        const hourVal = now.getHours();
-        let greet = '';
-        if (hourVal < 12) greet = '🌅 good morning';
-        else if (hourVal < 18) greet = '☀️ good afternoon';
-        else greet = '🌙 good evening';
-        document.getElementById('greeting').textContent = greet;
-        document.getElementById('time-last-updated').textContent = `tick ${now.toLocaleTimeString()}`;
-    }
-
-    // ---- WEATHER (CURRENT ONLY, NO FORECASTS) ----
-    let currentCoords = { lat: 40.7128, lon: -74.0060 };
-    
-    async function getWeather(lat, lon) {
-        try {
-            const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m&timezone=auto`;
-            const res = await fetch(url);
-            const data = await res.json();
-            if (data.current) {
-                document.getElementById('temperature').textContent = Math.round(data.current.temperature_2m);
-                document.getElementById('feels-like').textContent = `${Math.round(data.current.apparent_temperature)}°`;
-                document.getElementById('humidity').textContent = `${data.current.relative_humidity_2m}%`;
-                document.getElementById('wind').textContent = `${Math.round(data.current.wind_speed_10m)} km/h`;
-                const wIcon = getWeatherSymbol(data.current.weather_code);
-                document.getElementById('weather-icon').textContent = wIcon;
-                document.getElementById('description').textContent = getWeatherDesc(data.current.weather_code);
-                document.getElementById('weather-last-updated').textContent = `updated ${new Date().toLocaleTimeString()}`;
-                
-                // Cache only current weather
-                localStorage.setItem('wxCache', JSON.stringify({ 
-                    current: data.current, 
-                    lat, lon, 
-                    ts: Date.now() 
-                }));
-            }
-        } catch(e) {
-            showToast('weather offline');
-            const cached = localStorage.getItem('wxCache');
-            if(cached) { 
-                try {
-                    const c = JSON.parse(cached);
-                    if(Date.now() - c.ts < 3600000 && c.current) {
-                        document.getElementById('temperature').textContent = Math.round(c.current.temperature_2m);
-                        document.getElementById('feels-like').textContent = `${Math.round(c.current.apparent_temperature)}°`;
-                        document.getElementById('humidity').textContent = `${c.current.relative_humidity_2m}%`;
-                        document.getElementById('wind').textContent = `${Math.round(c.current.wind_speed_10m)} km/h`;
-                        document.getElementById('weather-icon').textContent = getWeatherSymbol(c.current.weather_code);
-                        document.getElementById('description').textContent = getWeatherDesc(c.current.weather_code);
-                    }
-                } catch(e){}
+                    // Cache only current weather
+                    localStorage.setItem('wxCache', JSON.stringify({
+                        current: data.current,
+                        lat, lon,
+                        ts: Date.now()
+                    }));
+                }
+            } catch (e) {
+                showToast('weather offline');
+                const cached = localStorage.getItem('wxCache');
+                if (cached) {
+                    try {
+                        const c = JSON.parse(cached);
+                        if (Date.now() - c.ts < 3600000 && c.current) {
+                            document.getElementById('temperature').textContent = Math.round(c.current.temperature_2m);
+                            document.getElementById('feels-like').textContent = `${Math.round(c.current.apparent_temperature)}°`;
+                            document.getElementById('humidity').textContent = `${c.current.relative_humidity_2m}%`;
+                            document.getElementById('wind').textContent = `${Math.round(c.current.wind_speed_10m)} km/h`;
+                            document.getElementById('weather-icon').textContent = getWeatherSymbol(c.current.weather_code);
+                            document.getElementById('description').textContent = getWeatherDesc(c.current.weather_code);
+                        }
+                    } catch (e) { }
+                }
             }
         }
-    }
 
-    function getWeatherSymbol(code) {
-        const map = {0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'🌫️',48:'🌫️',51:'🌧️',53:'🌧️',55:'🌧️',61:'🌦️',63:'🌧️',65:'🌧️',66:'🌨️',67:'🌨️',71:'🌨️',73:'🌨️',75:'❄️',77:'🌨️',80:'🌦️',81:'🌧️',85:'🌨️',86:'❄️',95:'⛈️'};
-        return map[code] || '🌡️';
-    }
-    
-    function getWeatherDesc(code) {
-        const desc = {0:'clear sky',1:'mainly clear',2:'partly cloudy',3:'overcast',45:'fog',48:'fog',51:'light drizzle',53:'moderate drizzle',55:'dense drizzle',61:'light rain',63:'moderate rain',65:'heavy rain',66:'freezing rain',67:'heavy freezing rain',71:'light snow',73:'moderate snow',75:'heavy snow',77:'snow grains',80:'rain showers',81:'heavy showers',85:'snow showers',86:'heavy snow showers',95:'thunderstorm'};
-        return desc[code] || 'mixed';
-    }
-
-    async function getLocationHuman(lat, lon) {
-        try {
-            const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=12`);
-            const data = await res.json();
-            const city = data.address?.city || data.address?.town || data.address?.village || `${lat.toFixed(1)},${lon.toFixed(1)}`;
-            document.getElementById('location').textContent = city;
-        } catch(e) { 
-            document.getElementById('location').textContent = `${lat.toFixed(1)},${lon.toFixed(1)}`; 
+        function getWeatherSymbol(code) {
+            const map = { 0: '☀️', 1: '🌤️', 2: '⛅', 3: '☁️', 45: '🌫️', 48: '🌫️', 51: '🌧️', 53: '🌧️', 55: '🌧️', 61: '🌦️', 63: '🌧️', 65: '🌧️', 66: '🌨️', 67: '🌨️', 71: '🌨️', 73: '🌨️', 75: '❄️', 77: '🌨️', 80: '🌦️', 81: '🌧️', 85: '🌨️', 86: '❄️', 95: '⛈️' };
+            return map[code] || '🌡️';
         }
-    }
 
-    function getUserWeather() {
-        if(navigator.geolocation) {
-            showToast('locating...');
-            navigator.geolocation.getCurrentPosition(pos => {
-                currentCoords = { lat: pos.coords.latitude, lon: pos.coords.longitude };
-                getWeather(currentCoords.lat, currentCoords.lon);
-                getLocationHuman(currentCoords.lat, currentCoords.lon);
-            }, () => {
-                showToast('default location');
+        function getWeatherDesc(code) {
+            const desc = { 0: 'clear sky', 1: 'mainly clear', 2: 'partly cloudy', 3: 'overcast', 45: 'fog', 48: 'fog', 51: 'light drizzle', 53: 'moderate drizzle', 55: 'dense drizzle', 61: 'light rain', 63: 'moderate rain', 65: 'heavy rain', 66: 'freezing rain', 67: 'heavy freezing rain', 71: 'light snow', 73: 'moderate snow', 75: 'heavy snow', 77: 'snow grains', 80: 'rain showers', 81: 'heavy showers', 85: 'snow showers', 86: 'heavy snow showers', 95: 'thunderstorm' };
+            return desc[code] || 'mixed';
+        }
+
+        async function getLocationHuman(lat, lon) {
+            try {
+                const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=12`);
+                const data = await res.json();
+                const city = data.address?.city || data.address?.town || data.address?.village || `${lat.toFixed(1)},${lon.toFixed(1)}`;
+                document.getElementById('location').textContent = city;
+            } catch (e) {
+                document.getElementById('location').textContent = `${lat.toFixed(1)},${lon.toFixed(1)}`;
+            }
+        }
+
+        function getUserWeather() {
+            if (navigator.geolocation) {
+                showToast('locating...');
+                navigator.geolocation.getCurrentPosition(pos => {
+                    currentCoords = { lat: pos.coords.latitude, lon: pos.coords.longitude };
+                    getWeather(currentCoords.lat, currentCoords.lon);
+                    getLocationHuman(currentCoords.lat, currentCoords.lon);
+                }, () => {
+                    showToast('default location');
+                    getWeather(40.7128, -74.0060);
+                    document.getElementById('location').textContent = 'New York';
+                });
+            } else {
                 getWeather(40.7128, -74.0060);
                 document.getElementById('location').textContent = 'New York';
-            });
-        } else { 
-            getWeather(40.7128, -74.0060);
-            document.getElementById('location').textContent = 'New York';
+            }
         }
-    }
 
-    function refreshWeather() {
-        if(currentCoords) {
-            getWeather(currentCoords.lat, currentCoords.lon);
-            getLocationHuman(currentCoords.lat, currentCoords.lon);
-        } else {
-            getUserWeather();
+        function refreshWeather() {
+            if (currentCoords) {
+                getWeather(currentCoords.lat, currentCoords.lon);
+                getLocationHuman(currentCoords.lat, currentCoords.lon);
+            } else {
+                getUserWeather();
+            }
         }
-    }
 
 
 
-    function showToast(msg) {
-        const t = document.getElementById('toast');
-        t.textContent = msg;
-        t.style.display = 'block';
-        setTimeout(() => t.style.display = 'none', 1800);
-    }
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.style.display = 'block';
+            setTimeout(() => t.style.display = 'none', 1800);
+        }
 
-    // ----- EVENT LISTENERS -----
-    document.getElementById('getLocationBtn').addEventListener('click', getUserWeather);
-    document.getElementById('refreshWeatherBtn').addEventListener('click', refreshWeather);
+        // ----- EVENT LISTENERS -----
+        document.getElementById('getLocationBtn').addEventListener('click', getUserWeather);
+        document.getElementById('refreshWeatherBtn').addEventListener('click', refreshWeather);
 
-    // ----- INIT -----
-    setInterval(updateTime, 1000);
-    updateTime();
-    initSwipe();
-    getUserWeather();
-    
-    if('wakeLock' in navigator) 
-        navigator.wakeLock.request('screen').catch(e=>{});
-    
-    // Refresh weather every 10 minutes (only current conditions)
-    setInterval(() => { 
-        if(currentCoords) getWeather(currentCoords.lat, currentCoords.lon); 
-    }, 600000);
-</script>
+        // ----- INIT -----
+        setInterval(updateTime, 1000);
+        updateTime();
+        initSwipe();
+        getUserWeather();
+
+        if ('wakeLock' in navigator)
+            navigator.wakeLock.request('screen').catch(e => { });
+
+        // Refresh weather every 10 minutes (only current conditions)
+        setInterval(() => {
+            if (currentCoords) getWeather(currentCoords.lat, currentCoords.lon);
+        }, 600000);
+    </script>
 </body>
+
 </html>
