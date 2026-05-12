@@ -415,21 +415,58 @@
             color: #eee;
         }
 
-        /* ========== NEWS SECTION ========== */
-        .news-item {
-            padding: 12px 0;
-            border-bottom: 1px solid #1a1a1a;
+        /* ========== NEWS SECTION (SLIDESHOW) ========== */
+        .news-container {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
         }
-        .news-title {
-            font-size: 14px;
-            font-weight: 500;
-            color: #eee;
+        .news-scroll {
+            display: flex;
+            height: 250px;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        .news-scroll::-webkit-scrollbar { display: none; }
+        .news-slide {
+            flex: 0 0 100%;
+            scroll-snap-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .news-img {
+            width: 100%;
+            height: 140px;
+            object-fit: cover;
+            border-radius: 16px;
+            background: #111;
+            border: 1px solid #1a1a1a;
+        }
+        .news-content {
+            padding: 0 4px;
+        }
+        .news-title-full {
+            font-size: 15px;
+            font-weight: 600;
+            color: #fff;
             margin-bottom: 4px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
-        .news-source {
-            font-size: 10px;
-            color: #555;
-            text-transform: uppercase;
+        .news-summary {
+            font-size: 11px;
+            color: #888;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
         }
 
         /* ========== STATUS & WORLD CLOCKS ========== */
@@ -589,13 +626,17 @@
         <div class="page news-page">
             <div class="panel">
                 <div class="weather-header">
-                    <h2>news feed</h2>
+                    <h2>latest news</h2>
                     <div class="loc-group">
                         <button class="icon-flat" id="refreshNewsBtn" aria-label="refresh">↻</button>
                     </div>
                 </div>
-                <div id="newsList" style="overflow-y: auto; height: 260px; padding-right: 5px;">
-                    <div class="stat-card">Loading news...</div>
+                <div class="news-container">
+                    <div class="news-scroll" id="newsList">
+                        <div class="news-slide">
+                            <div class="stat-card">Loading news...</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -945,25 +986,53 @@
         }
 
         // ----- NEWS -----
+        let newsSlideIndex = 0;
+        let newsInterval = null;
+
         async function getNews() {
             const list = document.getElementById('newsList');
             try {
-                // Using spaceflight news as it's public and doesn't require API key
                 const res = await fetch('https://api.spaceflightnewsapi.net/v4/articles/?limit=10');
                 const data = await res.json();
-                list.innerHTML = '';
-                data.results.forEach(item => {
-                    const div = document.createElement('div');
-                    div.className = 'news-item';
-                    div.innerHTML = `
-                        <div class="news-source">${item.news_site}</div>
-                        <div class="news-title">${item.title}</div>
-                    `;
-                    list.appendChild(div);
-                });
+                renderNews(data.results);
+                startNewsSlideshow();
             } catch (e) {
                 list.innerHTML = '<div class="stat-card">News offline</div>';
             }
+        }
+
+        function renderNews(articles) {
+            const list = document.getElementById('newsList');
+            list.innerHTML = '';
+            articles.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'news-slide';
+                div.innerHTML = `
+                    <img class="news-img" src="${item.image_url}" alt="news">
+                    <div class="news-content">
+                        <div class="news-source">${item.news_site}</div>
+                        <div class="news-title-full">${item.title}</div>
+                        <div class="news-summary">${item.summary}</div>
+                    </div>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        function startNewsSlideshow() {
+            if (newsInterval) clearInterval(newsInterval);
+            newsSlideIndex = 0;
+            newsInterval = setInterval(() => {
+                const container = document.getElementById('newsList');
+                const slides = container.querySelectorAll('.news-slide');
+                if (slides.length === 0) return;
+                
+                newsSlideIndex = (newsSlideIndex + 1) % slides.length;
+                container.scrollTo({
+                    left: newsSlideIndex * container.clientWidth,
+                    behavior: 'smooth'
+                });
+            }, 7000); // Change news every 7 seconds
         }
 
         // ----- STATUS & CLOCKS -----
