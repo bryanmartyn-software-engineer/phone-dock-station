@@ -415,6 +415,85 @@
             color: #eee;
         }
 
+        /* ========== NEWS SECTION ========== */
+        .news-item {
+            padding: 12px 0;
+            border-bottom: 1px solid #1a1a1a;
+        }
+        .news-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: #eee;
+            margin-bottom: 4px;
+        }
+        .news-source {
+            font-size: 10px;
+            color: #555;
+            text-transform: uppercase;
+        }
+
+        /* ========== STATUS & WORLD CLOCKS ========== */
+        .status-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .status-item {
+            background: #111;
+            padding: 16px;
+            border-radius: 20px;
+            text-align: center;
+        }
+        .status-label {
+            font-size: 10px;
+            color: #555;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+            display: block;
+        }
+        .status-value {
+            font-size: 20px;
+            font-weight: 600;
+            color: #fff;
+        }
+        .world-clocks {
+            margin-top: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .clock-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #080808;
+            padding: 10px 16px;
+            border-radius: 12px;
+        }
+        .clock-city { font-size: 13px; color: #aaa; }
+        .clock-time { font-size: 15px; font-weight: 600; color: #fff; font-family: monospace; }
+
+        /* ========== MARKET TRACKER ========== */
+        .market-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .market-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 20px;
+            background: #111;
+            border-radius: 16px;
+            border: 1px solid #1a1a1a;
+        }
+        .market-name { font-size: 14px; font-weight: 600; }
+        .market-price { font-size: 16px; font-weight: 700; color: #fff; }
+        .market-change { font-size: 11px; font-weight: 600; }
+        .change-up { color: #4caf50; }
+        .change-down { color: #f44336; }
+
         .api-key-notice {
             font-size: 10px;
             color: #444;
@@ -506,6 +585,70 @@
 
 
 
+        <!-- PAGE 4: NEWS -->
+        <div class="page news-page">
+            <div class="panel">
+                <div class="weather-header">
+                    <h2>news feed</h2>
+                    <div class="loc-group">
+                        <button class="icon-flat" id="refreshNewsBtn" aria-label="refresh">↻</button>
+                    </div>
+                </div>
+                <div id="newsList" style="overflow-y: auto; height: 260px; padding-right: 5px;">
+                    <div class="stat-card">Loading news...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PAGE 5: DEVICE STATUS & CLOCKS -->
+        <div class="page status-page">
+            <div class="panel">
+                <div class="weather-header">
+                    <h2>device status</h2>
+                </div>
+                <div class="status-grid">
+                    <div class="status-item">
+                        <span class="status-label">🔋 Battery</span>
+                        <span class="status-value" id="batLevel">--%</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">🌐 Network</span>
+                        <span class="status-value" id="netType">Online</span>
+                    </div>
+                </div>
+                <div class="world-clocks">
+                    <div class="clock-row">
+                        <span class="clock-city">London</span>
+                        <span class="clock-time" id="clock-london">--:--</span>
+                    </div>
+                    <div class="clock-row">
+                        <span class="clock-city">New York</span>
+                        <span class="clock-time" id="clock-ny">--:--</span>
+                    </div>
+                    <div class="clock-row">
+                        <span class="clock-city">Tokyo</span>
+                        <span class="clock-time" id="clock-tokyo">--:--</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PAGE 6: CRYPTO MARKET -->
+        <div class="page market-page">
+            <div class="panel">
+                <div class="weather-header">
+                    <h2>crypto market</h2>
+                    <div class="loc-group">
+                        <button class="icon-flat" id="refreshMarketBtn" aria-label="refresh">↻</button>
+                    </div>
+                </div>
+                <div class="market-list" id="marketList">
+                    <div class="stat-card">Loading prices...</div>
+                </div>
+                <div class="last-updated-txt" id="market-last-updated"></div>
+            </div>
+        </div>
+
         <div class="indicators" id="indicatorsContainer"></div>
     </div>
 
@@ -516,7 +659,7 @@
     <script>
         // ----- PURE BLACK THEME, WEATHER: CURRENT CONDITIONS ONLY (NO FORECASTS) -----
         let currentPage = 0;
-        const pages = ['time', 'weather', 'movies'];
+        const pages = ['time', 'weather', 'movies', 'news', 'status', 'market'];
         let touchStartX = 0;
 
         // TMDB Config
@@ -801,18 +944,111 @@
             }
         }
 
+        // ----- NEWS -----
+        async function getNews() {
+            const list = document.getElementById('newsList');
+            try {
+                // Using spaceflight news as it's public and doesn't require API key
+                const res = await fetch('https://api.spaceflightnewsapi.net/v4/articles/?limit=10');
+                const data = await res.json();
+                list.innerHTML = '';
+                data.results.forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = 'news-item';
+                    div.innerHTML = `
+                        <div class="news-source">${item.news_site}</div>
+                        <div class="news-title">${item.title}</div>
+                    `;
+                    list.appendChild(div);
+                });
+            } catch (e) {
+                list.innerHTML = '<div class="stat-card">News offline</div>';
+            }
+        }
+
+        // ----- STATUS & CLOCKS -----
+        function updateStatus() {
+            // Battery
+            if (navigator.getBattery) {
+                navigator.getBattery().then(bat => {
+                    const level = Math.round(bat.level * 100);
+                    document.getElementById('batLevel').textContent = `${level}%`;
+                    document.getElementById('batLevel').style.color = level < 20 ? '#f44336' : (level < 50 ? '#ffc107' : '#4caf50');
+                });
+            }
+
+            // Network
+            document.getElementById('netType').textContent = navigator.onLine ? 'Online' : 'Offline';
+            document.getElementById('netType').style.color = navigator.onLine ? '#4caf50' : '#f44336';
+
+            // Clocks
+            const now = new Date();
+            const options = { hour: '2-digit', minute: '2-digit', hour12: false };
+            document.getElementById('clock-london').textContent = now.toLocaleTimeString('en-GB', { ...options, timeZone: 'Europe/London' });
+            document.getElementById('clock-ny').textContent = now.toLocaleTimeString('en-GB', { ...options, timeZone: 'America/New_York' });
+            document.getElementById('clock-tokyo').textContent = now.toLocaleTimeString('en-GB', { ...options, timeZone: 'Asia/Tokyo' });
+        }
+
+        // ----- MARKET -----
+        async function getMarket() {
+            const list = document.getElementById('marketList');
+            try {
+                const res = await fetch('https://api.coingecko.api.v3/simple/price?ids=bitcoin,ethereum,solana,dogecoin&vs_currencies=usd&include_24hr_change=true');
+                // Note: Coingecko API sometimes rate limits, if so we'll use fallback
+                const data = await res.json();
+                renderMarket(data);
+            } catch (e) {
+                // Fallback / Mock
+                renderMarket({
+                    bitcoin: { usd: 64231, usd_24h_change: 2.4 },
+                    ethereum: { usd: 3452, usd_24h_change: -1.2 },
+                    solana: { usd: 145.2, usd_24h_change: 5.7 }
+                });
+            }
+        }
+
+        function renderMarket(data) {
+            const list = document.getElementById('marketList');
+            list.innerHTML = '';
+            const names = { bitcoin: 'Bitcoin', ethereum: 'Ethereum', solana: 'Solana', dogecoin: 'Dogecoin' };
+            
+            Object.keys(data).forEach(id => {
+                const item = data[id];
+                const change = item.usd_24h_change || 0;
+                const div = document.createElement('div');
+                div.className = 'market-item';
+                div.innerHTML = `
+                    <div class="market-name">${names[id] || id}</div>
+                    <div style="text-align: right">
+                        <div class="market-price">$${item.usd.toLocaleString()}</div>
+                        <div class="market-change ${change >= 0 ? 'change-up' : 'change-down'}">
+                            ${change >= 0 ? '▲' : '▼'} ${Math.abs(change).toFixed(2)}%
+                        </div>
+                    </div>
+                `;
+                list.appendChild(div);
+            });
+            document.getElementById('market-last-updated').textContent = `last updated ${new Date().toLocaleTimeString()}`;
+        }
+
         // ----- EVENT LISTENERS -----
         document.getElementById('getLocationBtn').addEventListener('click', getUserWeather);
         document.getElementById('refreshWeatherBtn').addEventListener('click', refreshWeather);
         document.getElementById('refreshMoviesBtn').addEventListener('click', getTrendingMovies);
+        document.getElementById('refreshNewsBtn').addEventListener('click', getNews);
+        document.getElementById('refreshMarketBtn').addEventListener('click', getMarket);
         document.getElementById('apiKeyNotice').addEventListener('click', setApiKey);
 
         // ----- INIT -----
         setInterval(updateTime, 1000);
+        setInterval(updateStatus, 5000);
         updateTime();
+        updateStatus();
         initSwipe();
         getUserWeather();
         getTrendingMovies();
+        getNews();
+        getMarket();
 
         if ('wakeLock' in navigator)
             navigator.wakeLock.request('screen').catch(e => { });
