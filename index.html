@@ -81,6 +81,14 @@
             gap: 10px;
             margin: 5px 0 20px;
             padding: 10px;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            pointer-events: none;
+        }
+
+        .indicators.visible {
+            opacity: 1;
+            pointer-events: auto;
         }
 
         .dot {
@@ -746,6 +754,17 @@
         let currentPage = 0;
         const pages = ['time', 'weather', 'movies', 'news', 'status', 'market'];
         let touchStartX = 0;
+        let indicatorTimeout;
+
+        function flashIndicators() {
+            const container = document.getElementById('indicatorsContainer');
+            if (!container) return;
+            container.classList.add('visible');
+            clearTimeout(indicatorTimeout);
+            indicatorTimeout = setTimeout(() => {
+                container.classList.remove('visible');
+            }, 3000);
+        }
 
         // TMDB Config
         let TMDB_API_KEY = localStorage.getItem('tmdb_key') || '1abb3e68d878be1155d781ce812f80a8';
@@ -754,14 +773,19 @@
         // Swipe + indicators
         function initSwipe() {
             const dash = document.querySelector('.dashboard');
-            dash.addEventListener('touchstart', (e) => { touchStartX = e.changedTouches[0].screenX; });
+            dash.addEventListener('touchstart', (e) => { 
+                touchStartX = e.changedTouches[0].screenX; 
+                flashIndicators();
+            });
             dash.addEventListener('touchend', (e) => {
                 const diff = e.changedTouches[0].screenX - touchStartX;
                 if (Math.abs(diff) > 45) {
                     if (diff > 0 && currentPage > 0) { currentPage--; showPage(currentPage); }
                     else if (diff < 0 && currentPage < pages.length - 1) { currentPage++; showPage(currentPage); }
                 }
+                flashIndicators();
             });
+            dash.addEventListener('mousedown', flashIndicators);
             buildIndicators();
             showPage(0);
         }
@@ -785,6 +809,7 @@
                 dot.classList.toggle('active', i === idx);
             });
             currentPage = idx;
+            flashIndicators();
         }
 
         // ---- TIME ----
