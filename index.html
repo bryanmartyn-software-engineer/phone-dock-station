@@ -423,6 +423,7 @@
             position: relative;
             overflow: hidden;
         }
+
         .news-scroll {
             display: flex;
             height: 250px;
@@ -431,7 +432,11 @@
             scrollbar-width: none;
             -ms-overflow-style: none;
         }
-        .news-scroll::-webkit-scrollbar { display: none; }
+
+        .news-scroll::-webkit-scrollbar {
+            display: none;
+        }
+
         .news-slide {
             flex: 0 0 100%;
             scroll-snap-align: center;
@@ -439,6 +444,7 @@
             flex-direction: column;
             gap: 12px;
         }
+
         .news-img {
             width: 100%;
             height: 140px;
@@ -447,9 +453,11 @@
             background: #111;
             border: 1px solid #1a1a1a;
         }
+
         .news-content {
             padding: 0 4px;
         }
+
         .news-title-full {
             font-size: 15px;
             font-weight: 600;
@@ -460,6 +468,7 @@
             -webkit-box-orient: vertical;
             overflow: hidden;
         }
+
         .news-summary {
             font-size: 11px;
             color: #888;
@@ -475,12 +484,14 @@
             grid-template-columns: 1fr 1fr;
             gap: 12px;
         }
+
         .status-item {
             background: #111;
             padding: 16px;
             border-radius: 20px;
             text-align: center;
         }
+
         .status-label {
             font-size: 10px;
             color: #555;
@@ -488,17 +499,20 @@
             margin-bottom: 8px;
             display: block;
         }
+
         .status-value {
             font-size: 20px;
             font-weight: 600;
             color: #fff;
         }
+
         .world-clocks {
             margin-top: 10px;
             display: flex;
             flex-direction: column;
             gap: 8px;
         }
+
         .clock-row {
             display: flex;
             justify-content: space-between;
@@ -507,8 +521,18 @@
             padding: 10px 16px;
             border-radius: 12px;
         }
-        .clock-city { font-size: 13px; color: #aaa; }
-        .clock-time { font-size: 15px; font-weight: 600; color: #fff; font-family: monospace; }
+
+        .clock-city {
+            font-size: 13px;
+            color: #aaa;
+        }
+
+        .clock-time {
+            font-size: 15px;
+            font-weight: 600;
+            color: #fff;
+            font-family: monospace;
+        }
 
         /* ========== MARKET TRACKER ========== */
         .market-list {
@@ -516,6 +540,7 @@
             flex-direction: column;
             gap: 10px;
         }
+
         .market-item {
             display: flex;
             justify-content: space-between;
@@ -525,11 +550,30 @@
             border-radius: 16px;
             border: 1px solid #1a1a1a;
         }
-        .market-name { font-size: 14px; font-weight: 600; }
-        .market-price { font-size: 16px; font-weight: 700; color: #fff; }
-        .market-change { font-size: 11px; font-weight: 600; }
-        .change-up { color: #4caf50; }
-        .change-down { color: #f44336; }
+
+        .market-name {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .market-price {
+            font-size: 16px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .market-change {
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .change-up {
+            color: #4caf50;
+        }
+
+        .change-down {
+            color: #f44336;
+        }
 
         .api-key-notice {
             font-size: 10px;
@@ -912,7 +956,7 @@
                 const date = item.release_date || item.first_air_date || '';
                 const year = date.split('-')[0];
                 const type = item.media_type === 'movie' ? 'Movie' : 'TV Show';
-                
+
                 const slide = document.createElement('div');
                 slide.className = 'movie-slide';
                 slide.innerHTML = `
@@ -938,7 +982,7 @@
                 const container = document.getElementById('moviesList');
                 const slides = container.querySelectorAll('.movie-slide');
                 if (slides.length === 0) return;
-                
+
                 movieSlideIndex = (movieSlideIndex + 1) % slides.length;
                 container.scrollTo({
                     left: movieSlideIndex * container.clientWidth,
@@ -953,7 +997,7 @@
                 { title: 'Deadpool & Wolverine', r: '7.9', y: '2024', p: 'https://images.unsplash.com/photo-1509248961158-e54f6934749c?w=300', d: 'A listless Wade Wilson toils away in civilian life with his days as the morally flexible mercenary behind him. But when his homeworld faces an existential threat, Wade must reluctantly suit-up again.', t: 'Movie' },
                 { title: 'Alien: Romulus', r: '7.2', y: '2024', p: 'https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?w=300', d: 'While scavenging the deep ends of a derelict space station, a group of young space colonizers come face to face with the most terrifying life form in the universe.', t: 'Movie' }
             ];
-            
+
             const container = document.getElementById('moviesList');
             container.innerHTML = '';
             mock.forEach(m => {
@@ -985,66 +1029,34 @@
             }
         }
 
-        // ----- NEWS (MALAYSIA) -----
+        // ----- NEWS -----
         let newsSlideIndex = 0;
         let newsInterval = null;
 
         async function getNews() {
             const list = document.getElementById('newsList');
             try {
-                // Using rss2json to fetch live Malaysian news from The Star
-                const rssUrl = encodeURIComponent('https://www.thestar.com.my/rss/news/nation');
-                const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${rssUrl}`);
+                const res = await fetch('https://api.spaceflightnewsapi.net/v4/articles/?limit=10');
                 const data = await res.json();
-                
-                if (data.status === 'ok') {
-                    renderNews(data.items);
-                } else {
-                    throw new Error('RSS Error');
-                }
+                renderNews(data.results);
                 startNewsSlideshow();
             } catch (e) {
-                console.error(e);
-                // Fallback to Malay Mail if The Star fails
-                try {
-                    const rssUrl = encodeURIComponent('https://www.malaymail.com/feed/news/malaysia');
-                    const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${rssUrl}`);
-                    const data = await res.json();
-                    renderNews(data.items);
-                    startNewsSlideshow();
-                } catch (e2) {
-                    list.innerHTML = '<div class="stat-card">Malaysian news offline</div>';
-                }
+                list.innerHTML = '<div class="stat-card">News offline</div>';
             }
         }
 
         function renderNews(articles) {
             const list = document.getElementById('newsList');
             list.innerHTML = '';
-            
-            // Limit to 10 articles
-            articles.slice(0, 10).forEach(item => {
+            articles.forEach(item => {
                 const div = document.createElement('div');
                 div.className = 'news-slide';
-                
-                // Extract image from description if not available in enclosure
-                let img = item.thumbnail || item.enclosure?.link || '';
-                if (!img && item.description) {
-                    const match = item.description.match(/<img[^>]+src="([^">]+)"/);
-                    if (match) img = match[1];
-                }
-                // Placeholder if still no image
-                if (!img) img = 'https://images.unsplash.com/photo-1588681921054-eb10d3ef7a02?w=500';
-
-                // Clean up description (remove HTML tags)
-                const cleanDesc = item.description.replace(/<[^>]*>?/gm, '').substring(0, 120) + '...';
-
                 div.innerHTML = `
-                    <img class="news-img" src="${img}" alt="news">
+                    <img class="news-img" src="${item.image_url}" alt="news">
                     <div class="news-content">
-                        <div class="news-source">MALAYSIA NEWS</div>
+                        <div class="news-source">${item.news_site}</div>
                         <div class="news-title-full">${item.title}</div>
-                        <div class="news-summary">${cleanDesc}</div>
+                        <div class="news-summary">${item.summary}</div>
                     </div>
                 `;
                 list.appendChild(div);
@@ -1058,7 +1070,7 @@
                 const container = document.getElementById('newsList');
                 const slides = container.querySelectorAll('.news-slide');
                 if (slides.length === 0) return;
-                
+
                 newsSlideIndex = (newsSlideIndex + 1) % slides.length;
                 container.scrollTo({
                     left: newsSlideIndex * container.clientWidth,
@@ -1112,7 +1124,7 @@
             const list = document.getElementById('marketList');
             list.innerHTML = '';
             const names = { bitcoin: 'Bitcoin', ethereum: 'Ethereum', solana: 'Solana', dogecoin: 'Dogecoin' };
-            
+
             Object.keys(data).forEach(id => {
                 const item = data[id];
                 const change = item.usd_24h_change || 0;
