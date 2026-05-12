@@ -327,72 +327,92 @@
             background: #333;
         }
 
-        /* ========== MOVIES SECTION ========== */
+        /* ========== MOVIES SECTION (SLIDESHOW) ========== */
         .movies-container {
             height: 100%;
             display: flex;
             flex-direction: column;
+            position: relative;
+            overflow: hidden;
         }
 
         .movies-scroll {
             display: flex;
-            gap: 16px;
+            height: 250px;
             overflow-x: auto;
-            padding: 10px 0;
             scroll-snap-type: x mandatory;
-            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
         }
 
         .movies-scroll::-webkit-scrollbar {
             display: none;
         }
 
-        .movie-card {
+        .movie-slide {
+            flex: 0 0 100%;
+            scroll-snap-align: center;
+            display: flex;
+            gap: 20px;
+            padding: 0 5px;
+        }
+
+        .slide-poster {
             flex: 0 0 140px;
-            scroll-snap-align: start;
-            background: #111;
-            border-radius: 16px;
-            overflow: hidden;
-            border: 1px solid #222;
-            transition: transform 0.2s;
-        }
-
-        .movie-card:active {
-            transform: scale(0.95);
-        }
-
-        .movie-poster {
-            width: 100%;
-            aspect-ratio: 2/3;
+            height: 210px;
             background: #1a1a1a;
+            border-radius: 12px;
             object-fit: cover;
-            display: block;
+            border: 1px solid #222;
         }
 
-        .movie-info {
-            padding: 8px;
+        .slide-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            padding-top: 4px;
+            overflow: hidden;
         }
 
-        .movie-title {
-            font-size: 11px;
-            font-weight: 500;
-            color: #eee;
-            white-space: nowrap;
+        .slide-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 4px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .slide-meta {
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 12px;
+            display: flex;
+            gap: 12px;
+        }
+
+        .slide-desc {
+            font-size: 13px;
+            color: #aaa;
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 5;
+            -webkit-box-orient: vertical;
             overflow: hidden;
             text-overflow: ellipsis;
-            margin-bottom: 2px;
         }
 
-        .movie-meta {
-            font-size: 9px;
-            color: #666;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .movie-rating {
-            color: #ffc107;
-            font-weight: bold;
+        .slide-type {
+            background: #222;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #eee;
         }
 
         .api-key-notice {
@@ -466,18 +486,19 @@
         <div class="page movies-page">
             <div class="panel">
                 <div class="weather-header">
-                    <h2>trending movies</h2>
+                    <h2>trending now</h2>
                     <div class="loc-group">
                         <button class="icon-flat" id="refreshMoviesBtn" aria-label="refresh">↻</button>
                     </div>
                 </div>
                 <div class="movies-container">
                     <div class="movies-scroll" id="moviesList">
-                        <!-- Movies injected here -->
-                        <div class="stat-card">Loading movies...</div>
+                        <div class="movie-slide">
+                            <div class="stat-card">Loading trending...</div>
+                        </div>
                     </div>
                     <div class="api-key-notice" id="apiKeyNotice">
-                        TMDB API Key required for live data. Click to set.
+                        Live data enabled. Tap to change key.
                     </div>
                 </div>
             </div>
@@ -672,22 +693,25 @@
         }
 
         // ----- MOVIES (TMDB) -----
+        let movieSlideIndex = 0;
+        let movieInterval = null;
+
         async function getTrendingMovies() {
             const moviesList = document.getElementById('moviesList');
             const notice = document.getElementById('apiKeyNotice');
 
             if (!TMDB_API_KEY) {
-                notice.style.display = 'block';
+                notice.textContent = "TMDB API Key required. Tap to set.";
                 showMockMovies();
                 return;
             }
 
-            notice.style.display = 'none';
             try {
-                const res = await fetch(`https://api.themoviedb.org/3/trending/movie/day?api_key=${TMDB_API_KEY}`);
+                const res = await fetch(`https://api.themoviedb.org/3/trending/all/day?api_key=${TMDB_API_KEY}`);
                 if (!res.ok) throw new Error('API Error');
                 const data = await res.json();
                 renderMovies(data.results);
+                startMovieSlideshow();
             } catch (e) {
                 console.error(e);
                 showToast('movies offline');
@@ -695,57 +719,77 @@
             }
         }
 
-        function renderMovies(movies) {
+        function renderMovies(items) {
             const container = document.getElementById('moviesList');
             container.innerHTML = '';
 
-            movies.slice(0, 10).forEach(movie => {
-                const card = document.createElement('div');
-                card.className = 'movie-card';
-                card.innerHTML = `
-                    <img class="movie-poster" src="${movie.poster_path ? TMDB_IMAGE_BASE + movie.poster_path : 'https://via.placeholder.com/140x210?text=No+Poster'}" alt="${movie.title}">
-                    <div class="movie-info">
-                        <div class="movie-title">${movie.title}</div>
-                        <div class="movie-meta">
-                            <span>${movie.release_date ? movie.release_date.split('-')[0] : 'N/A'}</span>
-                            <span class="movie-rating">★ ${movie.vote_average.toFixed(1)}</span>
+            items.slice(0, 15).forEach(item => {
+                const title = item.title || item.name;
+                const date = item.release_date || item.first_air_date || '';
+                const year = date.split('-')[0];
+                const type = item.media_type === 'movie' ? 'Movie' : 'TV Show';
+                
+                const slide = document.createElement('div');
+                slide.className = 'movie-slide';
+                slide.innerHTML = `
+                    <img class="slide-poster" src="${item.poster_path ? TMDB_IMAGE_BASE + item.poster_path : 'https://via.placeholder.com/140x210?text=No+Poster'}" alt="${title}">
+                    <div class="slide-info">
+                        <div class="slide-title">${title}</div>
+                        <div class="slide-meta">
+                            <span class="slide-type">${type}</span>
+                            <span style="color: #ffc107">★ ${item.vote_average.toFixed(1)}</span>
+                            <span>${year}</span>
                         </div>
+                        <div class="slide-desc">${item.overview || 'No description available.'}</div>
                     </div>
                 `;
-                container.appendChild(card);
+                container.appendChild(slide);
             });
         }
 
+        function startMovieSlideshow() {
+            if (movieInterval) clearInterval(movieInterval);
+            movieSlideIndex = 0;
+            movieInterval = setInterval(() => {
+                const container = document.getElementById('moviesList');
+                const slides = container.querySelectorAll('.movie-slide');
+                if (slides.length === 0) return;
+                
+                movieSlideIndex = (movieSlideIndex + 1) % slides.length;
+                container.scrollTo({
+                    left: movieSlideIndex * container.clientWidth,
+                    behavior: 'smooth'
+                });
+            }, 6000); // Change slide every 6 seconds
+        }
+
         function showMockMovies() {
-            const mockData = [
-                { title: 'The Substance', vote_average: 8.2, release_date: '2024', poster_path: '/8KInC9f0A98S88XmN9V9v7Vf9A1.jpg' },
-                { title: 'Dune: Part Two', vote_average: 8.3, release_date: '2024', poster_path: '/1pdf33HL9Mv9S9S9S9S9S9S9S9S.jpg' },
-                { title: 'Civil War', vote_average: 7.5, release_date: '2024', poster_path: '/sh7E6Zv0S9S9S9S9S9S9S9S9S9S.jpg' }
+            const mock = [
+                { title: 'The Substance', r: '8.2', y: '2024', p: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=300', d: 'A fading celebrity decides to use a black-market drug, a cell-replicating substance that temporarily creates a younger, better version of herself.', t: 'Movie' },
+                { title: 'Deadpool & Wolverine', r: '7.9', y: '2024', p: 'https://images.unsplash.com/photo-1509248961158-e54f6934749c?w=300', d: 'A listless Wade Wilson toils away in civilian life with his days as the morally flexible mercenary behind him. But when his homeworld faces an existential threat, Wade must reluctantly suit-up again.', t: 'Movie' },
+                { title: 'Alien: Romulus', r: '7.2', y: '2024', p: 'https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?w=300', d: 'While scavenging the deep ends of a derelict space station, a group of young space colonizers come face to face with the most terrifying life form in the universe.', t: 'Movie' }
             ];
-            // Just some placeholders since we don't have real paths for mock images without a key
-            // I'll use placeholders for mock
-            const moviesList = document.getElementById('moviesList');
-            moviesList.innerHTML = '';
-            [
-                { t: 'The Substance', r: '8.2', y: '2024', p: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=300' },
-                { t: 'Deadpool & Wolverine', r: '7.9', y: '2024', p: 'https://images.unsplash.com/photo-1509248961158-e54f6934749c?w=300' },
-                { t: 'Alien: Romulus', r: '7.2', y: '2024', p: 'https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?w=300' },
-                { t: 'Joker: Folie à Deux', r: '5.8', y: '2024', p: 'https://images.unsplash.com/photo-1531259683007-016a7b628fc3?w=300' }
-            ].forEach(m => {
-                const card = document.createElement('div');
-                card.className = 'movie-card';
-                card.innerHTML = `
-                    <img class="movie-poster" src="${m.p}" alt="${m.t}">
-                    <div class="movie-info">
-                        <div class="movie-title">${m.t}</div>
-                        <div class="movie-meta">
+            
+            const container = document.getElementById('moviesList');
+            container.innerHTML = '';
+            mock.forEach(m => {
+                const slide = document.createElement('div');
+                slide.className = 'movie-slide';
+                slide.innerHTML = `
+                    <img class="slide-poster" src="${m.p}" alt="${m.title}">
+                    <div class="slide-info">
+                        <div class="slide-title">${m.title}</div>
+                        <div class="slide-meta">
+                            <span class="slide-type">${m.t}</span>
+                            <span style="color: #ffc107">★ ${m.r}</span>
                             <span>${m.y}</span>
-                            <span class="movie-rating">★ ${m.r}</span>
                         </div>
+                        <div class="slide-desc">${m.d}</div>
                     </div>
                 `;
-                moviesList.appendChild(card);
+                container.appendChild(slide);
             });
+            startMovieSlideshow();
         }
 
         function setApiKey() {
