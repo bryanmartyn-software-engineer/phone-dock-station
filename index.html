@@ -985,34 +985,66 @@
             }
         }
 
-        // ----- NEWS -----
+        // ----- NEWS (MALAYSIA) -----
         let newsSlideIndex = 0;
         let newsInterval = null;
 
         async function getNews() {
             const list = document.getElementById('newsList');
             try {
-                const res = await fetch('https://api.spaceflightnewsapi.net/v4/articles/?limit=10');
+                // Using rss2json to fetch live Malaysian news from The Star
+                const rssUrl = encodeURIComponent('https://www.thestar.com.my/rss/news/nation');
+                const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${rssUrl}`);
                 const data = await res.json();
-                renderNews(data.results);
+                
+                if (data.status === 'ok') {
+                    renderNews(data.items);
+                } else {
+                    throw new Error('RSS Error');
+                }
                 startNewsSlideshow();
             } catch (e) {
-                list.innerHTML = '<div class="stat-card">News offline</div>';
+                console.error(e);
+                // Fallback to Malay Mail if The Star fails
+                try {
+                    const rssUrl = encodeURIComponent('https://www.malaymail.com/feed/news/malaysia');
+                    const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=${rssUrl}`);
+                    const data = await res.json();
+                    renderNews(data.items);
+                    startNewsSlideshow();
+                } catch (e2) {
+                    list.innerHTML = '<div class="stat-card">Malaysian news offline</div>';
+                }
             }
         }
 
         function renderNews(articles) {
             const list = document.getElementById('newsList');
             list.innerHTML = '';
-            articles.forEach(item => {
+            
+            // Limit to 10 articles
+            articles.slice(0, 10).forEach(item => {
                 const div = document.createElement('div');
                 div.className = 'news-slide';
+                
+                // Extract image from description if not available in enclosure
+                let img = item.thumbnail || item.enclosure?.link || '';
+                if (!img && item.description) {
+                    const match = item.description.match(/<img[^>]+src="([^">]+)"/);
+                    if (match) img = match[1];
+                }
+                // Placeholder if still no image
+                if (!img) img = 'https://images.unsplash.com/photo-1588681921054-eb10d3ef7a02?w=500';
+
+                // Clean up description (remove HTML tags)
+                const cleanDesc = item.description.replace(/<[^>]*>?/gm, '').substring(0, 120) + '...';
+
                 div.innerHTML = `
-                    <img class="news-img" src="${item.image_url}" alt="news">
+                    <img class="news-img" src="${img}" alt="news">
                     <div class="news-content">
-                        <div class="news-source">${item.news_site}</div>
+                        <div class="news-source">MALAYSIA NEWS</div>
                         <div class="news-title-full">${item.title}</div>
-                        <div class="news-summary">${item.summary}</div>
+                        <div class="news-summary">${cleanDesc}</div>
                     </div>
                 `;
                 list.appendChild(div);
