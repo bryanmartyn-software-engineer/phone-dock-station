@@ -327,6 +327,82 @@
             background: #333;
         }
 
+        /* ========== MOVIES SECTION ========== */
+        .movies-container {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .movies-scroll {
+            display: flex;
+            gap: 16px;
+            overflow-x: auto;
+            padding: 10px 0;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .movies-scroll::-webkit-scrollbar {
+            display: none;
+        }
+
+        .movie-card {
+            flex: 0 0 140px;
+            scroll-snap-align: start;
+            background: #111;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid #222;
+            transition: transform 0.2s;
+        }
+
+        .movie-card:active {
+            transform: scale(0.95);
+        }
+
+        .movie-poster {
+            width: 100%;
+            aspect-ratio: 2/3;
+            background: #1a1a1a;
+            object-fit: cover;
+            display: block;
+        }
+
+        .movie-info {
+            padding: 8px;
+        }
+
+        .movie-title {
+            font-size: 11px;
+            font-weight: 500;
+            color: #eee;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-bottom: 2px;
+        }
+
+        .movie-meta {
+            font-size: 9px;
+            color: #666;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .movie-rating {
+            color: #ffc107;
+            font-weight: bold;
+        }
+
+        .api-key-notice {
+            font-size: 10px;
+            color: #444;
+            text-align: center;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+
         button,
         .icon-flat,
         .action-wide,
@@ -386,6 +462,27 @@
             </div>
         </div>
 
+        <!-- PAGE 3: MOVIES -->
+        <div class="page movies-page">
+            <div class="panel">
+                <div class="weather-header">
+                    <h2>trending movies</h2>
+                    <div class="loc-group">
+                        <button class="icon-flat" id="refreshMoviesBtn" aria-label="refresh">↻</button>
+                    </div>
+                </div>
+                <div class="movies-container">
+                    <div class="movies-scroll" id="moviesList">
+                        <!-- Movies injected here -->
+                        <div class="stat-card">Loading movies...</div>
+                    </div>
+                    <div class="api-key-notice" id="apiKeyNotice">
+                        TMDB API Key required for live data. Click to set.
+                    </div>
+                </div>
+            </div>
+        </div>
+
 
 
         <div class="indicators" id="indicatorsContainer"></div>
@@ -398,8 +495,12 @@
     <script>
         // ----- PURE BLACK THEME, WEATHER: CURRENT CONDITIONS ONLY (NO FORECASTS) -----
         let currentPage = 0;
-        const pages = ['time', 'weather'];
+        const pages = ['time', 'weather', 'movies'];
         let touchStartX = 0;
+
+        // TMDB Config
+        let TMDB_API_KEY = localStorage.getItem('tmdb_key') || '1abb3e68d878be1155d781ce812f80a8';
+        const TMDB_IMAGE_BASE = 'https://image.tmdb.org/t/p/w342';
 
         // Swipe + indicators
         function initSwipe() {
@@ -570,15 +671,104 @@
             setTimeout(() => t.style.display = 'none', 1800);
         }
 
+        // ----- MOVIES (TMDB) -----
+        async function getTrendingMovies() {
+            const moviesList = document.getElementById('moviesList');
+            const notice = document.getElementById('apiKeyNotice');
+
+            if (!TMDB_API_KEY) {
+                notice.style.display = 'block';
+                showMockMovies();
+                return;
+            }
+
+            notice.style.display = 'none';
+            try {
+                const res = await fetch(`https://api.themoviedb.org/3/trending/movie/day?api_key=${TMDB_API_KEY}`);
+                if (!res.ok) throw new Error('API Error');
+                const data = await res.json();
+                renderMovies(data.results);
+            } catch (e) {
+                console.error(e);
+                showToast('movies offline');
+                showMockMovies();
+            }
+        }
+
+        function renderMovies(movies) {
+            const container = document.getElementById('moviesList');
+            container.innerHTML = '';
+
+            movies.slice(0, 10).forEach(movie => {
+                const card = document.createElement('div');
+                card.className = 'movie-card';
+                card.innerHTML = `
+                    <img class="movie-poster" src="${movie.poster_path ? TMDB_IMAGE_BASE + movie.poster_path : 'https://via.placeholder.com/140x210?text=No+Poster'}" alt="${movie.title}">
+                    <div class="movie-info">
+                        <div class="movie-title">${movie.title}</div>
+                        <div class="movie-meta">
+                            <span>${movie.release_date ? movie.release_date.split('-')[0] : 'N/A'}</span>
+                            <span class="movie-rating">★ ${movie.vote_average.toFixed(1)}</span>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function showMockMovies() {
+            const mockData = [
+                { title: 'The Substance', vote_average: 8.2, release_date: '2024', poster_path: '/8KInC9f0A98S88XmN9V9v7Vf9A1.jpg' },
+                { title: 'Dune: Part Two', vote_average: 8.3, release_date: '2024', poster_path: '/1pdf33HL9Mv9S9S9S9S9S9S9S9S.jpg' },
+                { title: 'Civil War', vote_average: 7.5, release_date: '2024', poster_path: '/sh7E6Zv0S9S9S9S9S9S9S9S9S9S.jpg' }
+            ];
+            // Just some placeholders since we don't have real paths for mock images without a key
+            // I'll use placeholders for mock
+            const moviesList = document.getElementById('moviesList');
+            moviesList.innerHTML = '';
+            [
+                { t: 'The Substance', r: '8.2', y: '2024', p: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=300' },
+                { t: 'Deadpool & Wolverine', r: '7.9', y: '2024', p: 'https://images.unsplash.com/photo-1509248961158-e54f6934749c?w=300' },
+                { t: 'Alien: Romulus', r: '7.2', y: '2024', p: 'https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?w=300' },
+                { t: 'Joker: Folie à Deux', r: '5.8', y: '2024', p: 'https://images.unsplash.com/photo-1531259683007-016a7b628fc3?w=300' }
+            ].forEach(m => {
+                const card = document.createElement('div');
+                card.className = 'movie-card';
+                card.innerHTML = `
+                    <img class="movie-poster" src="${m.p}" alt="${m.t}">
+                    <div class="movie-info">
+                        <div class="movie-title">${m.t}</div>
+                        <div class="movie-meta">
+                            <span>${m.y}</span>
+                            <span class="movie-rating">★ ${m.r}</span>
+                        </div>
+                    </div>
+                `;
+                moviesList.appendChild(card);
+            });
+        }
+
+        function setApiKey() {
+            const key = prompt('Enter TMDB API Key:', TMDB_API_KEY);
+            if (key !== null) {
+                TMDB_API_KEY = key;
+                localStorage.setItem('tmdb_key', key);
+                getTrendingMovies();
+            }
+        }
+
         // ----- EVENT LISTENERS -----
         document.getElementById('getLocationBtn').addEventListener('click', getUserWeather);
         document.getElementById('refreshWeatherBtn').addEventListener('click', refreshWeather);
+        document.getElementById('refreshMoviesBtn').addEventListener('click', getTrendingMovies);
+        document.getElementById('apiKeyNotice').addEventListener('click', setApiKey);
 
         // ----- INIT -----
         setInterval(updateTime, 1000);
         updateTime();
         initSwipe();
         getUserWeather();
+        getTrendingMovies();
 
         if ('wakeLock' in navigator)
             navigator.wakeLock.request('screen').catch(e => { });
